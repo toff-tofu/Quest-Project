@@ -22,6 +22,11 @@ public class Movement : MonoBehaviour
     {
         CheckGrounded();
         CheckHanging();
+        if (grounded)
+        {
+            leftHanging = false;
+            rightHanging = false;
+        }
         if (Input.GetKeyDown(KeyCode.Space)||Input.GetKeyDown(KeyCode.W)||Input.GetKeyDown(KeyCode.UpArrow))
         {
             Jump();
