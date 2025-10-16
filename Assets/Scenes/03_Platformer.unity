@@ -996,6 +996,9 @@ MonoBehaviour:
   JumpHeight: 12.5
   body: {fileID: 376374380}
   abilityPower: 1000
+  acceleration: 10
+  groundDrag: 10
+  airDrag: 5
 --- !u!50 &376374380
 Rigidbody2D:
   serializedVersion: 4

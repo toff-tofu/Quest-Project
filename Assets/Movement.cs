@@ -9,6 +9,9 @@ public class Movement : MonoBehaviour
     public float JumpHeight;
     public Rigidbody2D body;
     public float abilityPower;
+    public float acceleration;
+    public float groundDrag;
+    public float airDrag;
 //-------------------------------------------------------------------
 
     private bool grounded = false;
@@ -108,7 +111,7 @@ public class Movement : MonoBehaviour
     void Ability(){
         if (Input.GetKeyDown("x")){
             print("You Pressed Space");
-            abilitySpeed = new Vector2(abilityPower*Input.GetAxisRaw("Horizontal"), 0);
+            abilitySpeed = new Vector2(abilityPower*Input.GetAxisRaw("Horizontal"), abilityPower*Input.GetAxisRaw("Vertical"));
         }   
         
     }
@@ -126,6 +129,10 @@ public class Movement : MonoBehaviour
         
     }
     void Move(){
+        //acceleration based
+        // float hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
+        // gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(hVal, 0));
+        //direction based
         float hVal = 0;
         if (walljumpXVel < 3 && walljumpXVel >= 0 || walljumpXVel > -3 && walljumpXVel <= 0)
         {
@@ -134,7 +141,7 @@ public class Movement : MonoBehaviour
         oldYVel = body.velocity.y;
         oldVel = body.velocity;
         oldPos = gameObject.GetComponent<Transform>().position;
-        body.velocity = new Vector2(hVal + walljumpXVel, oldYVel);
+        body.AddForce(new Vector2((hVal + walljumpXVel)*acceleration, oldYVel));
         body.AddForce(abilitySpeed);
         walljumpXVel /= jumpSub;
         if (body.velocity != oldVel && grounded)
@@ -149,9 +156,17 @@ public class Movement : MonoBehaviour
         }
     }
     void ApplyForces(){
-        abilitySpeed = new Vector2(abilitySpeed.x/1.15f, abilitySpeed.y);
+        abilitySpeed = new Vector2(abilitySpeed.x/1.15f, abilitySpeed.y/1.15f);
         if (abilitySpeed.x < 0.5f && abilitySpeed.x > -0.5f){
-            abilitySpeed = new Vector2(0,0);
+            abilitySpeed = new Vector2(0,abilitySpeed.y);
+        }
+        if (abilitySpeed.y < 0.5f && abilitySpeed.y > -0.5f){
+            abilitySpeed = new Vector2(abilitySpeed.x,0);
+        }
+        if (grounded&&abilitySpeed.x==0){
+            body.drag = groundDrag;
+        } else {
+            body.drag = airDrag;
         }
     }
 }
