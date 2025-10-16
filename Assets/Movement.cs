@@ -12,6 +12,7 @@ public class Movement : MonoBehaviour
     public float acceleration;
     public float groundDrag;
     public float airDrag;
+    public float abilityDrag;
 //-------------------------------------------------------------------
 
     private bool grounded = false;
@@ -41,7 +42,7 @@ public class Movement : MonoBehaviour
     {
         Move();
         ApplyForces();
-        CapSpeed();
+        // CapSpeed();
         Die();
     }
     private void CheckGrounded()
@@ -156,17 +157,21 @@ public class Movement : MonoBehaviour
         }
     }
     void ApplyForces(){
-        abilitySpeed = new Vector2(abilitySpeed.x/1.15f, abilitySpeed.y/1.15f);
+        abilitySpeed = new Vector2(abilitySpeed.x/abilityDrag, abilitySpeed.y/abilityDrag);
         if (abilitySpeed.x < 0.5f && abilitySpeed.x > -0.5f){
             abilitySpeed = new Vector2(0,abilitySpeed.y);
         }
         if (abilitySpeed.y < 0.5f && abilitySpeed.y > -0.5f){
             abilitySpeed = new Vector2(abilitySpeed.x,0);
         }
-        if (grounded&&abilitySpeed.x==0){
-            body.drag = groundDrag;
-        } else {
-            body.drag = airDrag;
-        }
+        // if (grounded){
+        //     body.drag = groundDrag;
+        // }
+        // if (body.velocity.y>0){
+        //     body.AddForce(airDrag*Vector2.down);
+        // }
+        // if (body.velocity.x!=0&&!grounded){
+        //     body.AddForce(new Vector2(-Mathf.Sign(body.velocity.x)*airDrag,0));
+        // }
     }
 }
