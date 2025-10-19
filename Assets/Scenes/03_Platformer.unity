@@ -994,6 +994,7 @@ MonoBehaviour:
   maxSpeed: 7
   MoveSpeed: 10
   JumpHeight: 8
+  JumpHeight: 12.5
 --- !u!50 &376374380
 Rigidbody2D:
   serializedVersion: 4
@@ -1009,7 +1010,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 1
-  m_GravityScale: 1
+  m_GravityScale: 2.5
   m_Material: {fileID: 6200000, guid: 63e4897dd464741adb85b7fc8f6b8e3a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
