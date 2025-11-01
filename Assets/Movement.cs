@@ -11,8 +11,10 @@ public class Movement : MonoBehaviour
     public Rigidbody2D body;
     public float abilityPower;
     public float acceleration;
-    public float groundDrag;
-    public float airDrag;
+    public float abilityDrag;
+    public float abilityControl;
+    public float xDrag;
+    public float terminalVel;
     //-------------------------------------------------------------------
 
     private bool grounded = false;
@@ -115,23 +117,23 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKeyDown("x"))
         {
-            print("You Pressed Space");
-            abilitySpeed = new Vector2(abilityPower * Input.GetAxisRaw("Horizontal"), abilityPower * Input.GetAxisRaw("Vertical"));
+            body.velocity = new Vector2(0, 0);
+            abilitySpeed = new Vector2(abilityPower * Input.GetAxisRaw("Horizontal"), 0);
         }
 
     }
     void CapSpeed()
     {
-        if (body.velocity.x >= maxSpeed)
-        {
-            // float oldYVel = body.velocity.y;
-            body.velocity = new Vector2(maxSpeed, oldYVel);
-        }
-        if (body.velocity.x <= -maxSpeed)
-        {
-            // float oldYVel = body.velocity.y;
-            body.velocity = new Vector2(-maxSpeed, oldYVel);
-        }
+        // if (body.velocity.x >= maxSpeed)
+        // {
+        //     // float oldYVel = body.velocity.y;
+        //     body.velocity = new Vector2(maxSpeed, oldYVel);
+        // }
+        // if (body.velocity.x <= -maxSpeed)
+        // {
+        //     // float oldYVel = body.velocity.y;
+        //     body.velocity = new Vector2(-maxSpeed, oldYVel);
+        // }
 
     }
     void Move()
@@ -148,38 +150,29 @@ public class Movement : MonoBehaviour
         oldYVel = body.velocity.y;
         oldVel = body.velocity;
         oldPos = gameObject.GetComponent<Transform>().position;
-        body.AddForce(new Vector2((hVal + walljumpXVel) * acceleration, oldYVel));
+        // if (abilitySpeed.x <= abilityControl && abilitySpeed.x >= -abilityControl && abilitySpeed.y <= abilityControl && abilitySpeed.y >= -abilityControl)
+        // {
+        body.AddForce(new Vector2((hVal + walljumpXVel) * acceleration, body.velocity.y));
+        // }
+        // else
+        // {
+        //     body.drag = abilityDrag;
+        // }
         body.AddForce(abilitySpeed);
         walljumpXVel /= jumpSub;
-        if (body.velocity != oldVel && grounded)
-        {
-            // gameObject.GetComponent<AudioSource>().Play();
-            // gameObject.GetComponent<ParticleSystem>().Emit(1);
-        }
-        if (body.velocity == oldVel && grounded)
-        {
-            // gameObject.GetComponent<AudioSource>().Stop();
-            // gameObject.GetComponent<ParticleSystem>().Emit(1);
-        }
     }
     void ApplyForces()
     {
-        abilitySpeed = new Vector2(abilitySpeed.x / 1.15f, abilitySpeed.y / 1.15f);
-        if (abilitySpeed.x < 0.5f && abilitySpeed.x > -0.5f)
+        abilitySpeed = new Vector2(abilitySpeed.x / abilityDrag * xDrag, 0);
+        if (abilitySpeed.x < abilityControl && abilitySpeed.x > -abilityControl)
         {
-            abilitySpeed = new Vector2(0, abilitySpeed.y);
+            abilitySpeed = new Vector2(0, body.velocity.y);
         }
-        if (abilitySpeed.y < 0.5f && abilitySpeed.y > -0.5f)
+
+        body.velocity = new Vector2(body.velocity.x / xDrag, body.velocity.y);
+        if (body.velocity.y < -terminalVel)
         {
-            abilitySpeed = new Vector2(abilitySpeed.x, 0);
-        }
-        if (grounded && abilitySpeed.x == 0)
-        {
-            body.drag = groundDrag;
-        }
-        else
-        {
-            body.drag = airDrag;
+            body.velocity = new Vector2(body.velocity.x, -terminalVel);
         }
     }
 }
