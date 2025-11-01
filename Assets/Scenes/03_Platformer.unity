@@ -993,12 +993,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSpeed: 7
   MoveSpeed: 10
-  JumpHeight: 12.5
+  JumpHeight: 10
   body: {fileID: 376374380}
   abilityPower: 1000
   acceleration: 10
   groundDrag: 10
-  airDrag: 5
+  airDrag: 1
 --- !u!50 &376374380
 Rigidbody2D:
   serializedVersion: 4
@@ -1014,7 +1014,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 2
   m_AngularDrag: 1
-  m_GravityScale: 2.5
+  m_GravityScale: 1.5
   m_Material: {fileID: 6200000, guid: 63e4897dd464741adb85b7fc8f6b8e3a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
