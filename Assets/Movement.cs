@@ -26,6 +26,7 @@ public class Movement : MonoBehaviour
     private Vector3 oldPos;
     private float oldYVel;
     private Vector2 abilitySpeed = new Vector2(0, 0);
+    private bool canDash = false;
     // private float trail;
     //-------------------------------------------------------------------
 
@@ -59,7 +60,7 @@ public class Movement : MonoBehaviour
         grounded = leftCols.Length > 0 || rightCols.Length > 0;
         if (grounded)
         {
-            print("You Hit The Ground");
+            canDash = true;
         }
     }
     private void CheckHanging()
@@ -74,6 +75,10 @@ public class Movement : MonoBehaviour
                                                         Vector2.right, 0.6f, LayerMask.GetMask("Block"));
         leftHanging = leftColsTop.Length > 0 || leftColsBottom.Length > 0;
         rightHanging = rightColsTop.Length > 0 || rightColsBottom.Length > 0;
+        if (leftHanging || rightHanging)
+        {
+            canDash = true;
+        }
         if (grounded)
         {
             leftHanging = false;
@@ -111,17 +116,18 @@ public class Movement : MonoBehaviour
     }
     void Die()
     {
-        if (gameObject.GetComponent<Transform>().position.y < -5)
+        if (gameObject.GetComponent<Transform>().position.y < -30)
         {
             body.position = new Vector2(0, 0);
         }
     }
     void Ability()
     {
-        if (Input.GetKeyDown("x"))
+        if (Input.GetKeyDown("x") && canDash)
         {
             body.velocity = new Vector2(0, 0);
             abilitySpeed = new Vector2(abilityPower * Input.GetAxisRaw("Horizontal"), 0);
+            canDash = false;
         }
 
     }
