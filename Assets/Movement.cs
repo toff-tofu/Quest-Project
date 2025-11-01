@@ -26,11 +26,14 @@ public class Movement : MonoBehaviour
     private Vector3 oldPos;
     private float oldYVel;
     private Vector2 abilitySpeed = new Vector2(0, 0);
+    // private float trail;
     //-------------------------------------------------------------------
 
     void Start()
     {
         oldYVel = body.velocity.y;
+        // trail = GetComponent<TrailRenderer>().time;
+        // trail = 0;
     }
     void Update()
     {
@@ -167,6 +170,11 @@ public class Movement : MonoBehaviour
         if (abilitySpeed.x < abilityControl && abilitySpeed.x > -abilityControl)
         {
             abilitySpeed = new Vector2(0, body.velocity.y);
+            GetComponent<TrailRenderer>().emitting = false;
+        }
+        else
+        {
+            GetComponent<TrailRenderer>().emitting = true;
         }
 
         body.velocity = new Vector2(body.velocity.x / xDrag, body.velocity.y);
