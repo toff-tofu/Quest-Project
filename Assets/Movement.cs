@@ -27,6 +27,7 @@ public class Movement : MonoBehaviour
     private float oldYVel;
     private Vector2 abilitySpeed = new Vector2(0, 0);
     private bool canDash = false;
+    private float onMovingBlock = false;
     // private float trail;
     //-------------------------------------------------------------------
 
@@ -60,6 +61,20 @@ public class Movement : MonoBehaviour
         grounded = leftCols.Length > 0 || rightCols.Length > 0;
         if (grounded)
         {
+            canDash = true;
+        }
+
+
+        RaycastHit2D[] mLeftCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0.4f, 0, 0),
+                                                        Vector2.down, 0.8f, LayerMask.GetMask("Moving Block"));
+        RaycastHit2D[] mRightCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0.4f, 0, 0),
+                                                        Vector2.down, 0.8f, LayerMask.GetMask("Moving Block"));
+        onMovingBlock = mLeftCols.Length > 0 || mRightCols.Length > 0;
+        if (onMovingBlock)
+        {
+
+            //NEED TO WRITE CODE TO FIND BLOCK THAT YOU ARE ON AND MATCH ITS VELOCITY
+            body.velocity = new Vector2(body.velocity.x, 0);
             canDash = true;
         }
     }
@@ -187,6 +202,10 @@ public class Movement : MonoBehaviour
         if (body.velocity.y < -terminalVel)
         {
             body.velocity = new Vector2(body.velocity.x, -terminalVel);
+        }
+        if (onMovingBlock)
+        {
+            body.velocity = new Vector2(body.velocity.x, 0);
         }
     }
 }
