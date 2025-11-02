@@ -15,6 +15,8 @@ public class Movement : MonoBehaviour
     public float abilityControl;
     public float xDrag;
     public float terminalVel;
+    public Collider2D groundCheck;
+    public LayerMask groundMask;
     //-------------------------------------------------------------------
 
     private bool grounded = false;
@@ -27,7 +29,7 @@ public class Movement : MonoBehaviour
     private float oldYVel;
     private Vector2 abilitySpeed = new Vector2(0, 0);
     private bool canDash = false;
-    private float onMovingBlock = false;
+    private GameObject onMovingBlock = null;
     // private float trail;
     //-------------------------------------------------------------------
 
@@ -65,19 +67,47 @@ public class Movement : MonoBehaviour
         }
 
 
-        RaycastHit2D[] mLeftCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0.4f, 0, 0),
-                                                        Vector2.down, 0.8f, LayerMask.GetMask("Moving Block"));
-        RaycastHit2D[] mRightCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0.4f, 0, 0),
-                                                        Vector2.down, 0.8f, LayerMask.GetMask("Moving Block"));
-        onMovingBlock = mLeftCols.Length > 0 || mRightCols.Length > 0;
-        if (onMovingBlock)
+        Collider2D[] overlaps = Physics2D.OverlapAreaAll(groundCheck.bounds.min, groundCheck.bounds.max, groundMask);
+        if (overlaps.Length == 0)
         {
-
-            //NEED TO WRITE CODE TO FIND BLOCK THAT YOU ARE ON AND MATCH ITS VELOCITY
-            body.velocity = new Vector2(body.velocity.x, 0);
-            canDash = true;
+            onMovingBlock = null;
         }
+        else
+        {
+            foreach (Collider2D col in overlaps)
+            {
+                if (col.gameObject.layer == 11) // Layer 11 is "Moving Block"
+                {
+                    grounded = true;
+                    onMovingBlock = col.gameObject;
+                    break;
+                }
+                else
+                {
+                    onMovingBlock = null;
+                }
+            }
+        }
+        // RaycastHit2D[] mLeftCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0.4f, 0, 0),
+        //                                                 Vector2.down, 0.8f, LayerMask.GetMask("Moving Block"));
+        // RaycastHit2D[] mRightCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0.4f, 0, 0),
+        //                                                 Vector2.down, 0.8f, LayerMask.GetMask("Moving Block"));
+        // onMovingBlock = mLeftCols.Length > 0 || mRightCols.Length > 0;
+
+
     }
+
+    // void OnCollisionEnter2D(Collision2D collision)
+    // {
+    //     if (collision.gameObject.layer == 11)
+    //     {
+    //         onMovingBlock = collision.gameObject;
+    //     }
+    //     else
+    //     {
+    //         onMovingBlock = null;
+    //     }
+    // }
     private void CheckHanging()
     {
         RaycastHit2D[] leftColsTop = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0, 0.5f, 0),
@@ -203,9 +233,11 @@ public class Movement : MonoBehaviour
         {
             body.velocity = new Vector2(body.velocity.x, -terminalVel);
         }
-        if (onMovingBlock)
+        if (onMovingBlock != null)
         {
-            body.velocity = new Vector2(body.velocity.x, 0);
+            body.velocity = new Vector2(onMovingBlock.GetComponent<Rigidbody2D>().velocity.x, body.velocity.y);
+            grounded = true;
+            canDash = true;
         }
     }
 }
