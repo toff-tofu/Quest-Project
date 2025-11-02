@@ -296,12 +296,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSpeed: 30
   MoveSpeed: 20
-  JumpHeight: 9
+  JumpHeight: 10
   body: {fileID: 376374380}
-  abilityPower: 1500
+  abilityPower: 1730
   acceleration: 10
   abilityDrag: 3
-  abilityControl: 10
+  abilityControl: 30
   xDrag: 2
   terminalVel: 20
   groundCheck: {fileID: 376374389}
@@ -5393,7 +5393,7 @@ TrailRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.51882553
+        value: 0.5732231
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -5401,22 +5401,22 @@ TrailRenderer:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 0.042620193
-        value: 0.482778
-        inSlope: -0.11882393
-        outSlope: -0.11882393
+        time: 0.040689956
+        value: 0.5287985
+        inSlope: -0.016621156
+        outSlope: -0.016621156
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
-        outWeight: 0.33333334
+        outWeight: 0.10046352
       - serializedVersion: 3
         time: 1
         value: 0
-        inSlope: 0
-        outSlope: 0
+        inSlope: -0.06567765
+        outSlope: -0.06567765
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.13281755
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -5451,8 +5451,8 @@ TrailRenderer:
       m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
+    numCornerVertices: 3
+    numCapVertices: 3
     alignment: 0
     textureMode: 0
     textureScale: {x: 1, y: 1}

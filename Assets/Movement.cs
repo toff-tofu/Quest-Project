@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.ShortcutManagement;
 using UnityEngine;
 
 
@@ -30,7 +32,10 @@ public class Movement : MonoBehaviour
     private Vector2 abilitySpeed = new Vector2(0, 0);
     private bool canDash = false;
     private GameObject onMovingBlock = null;
-    // private float trail;
+    private Vector2 blockVel = new Vector2(0, 0);
+    private float dashStartY;
+    private float carrySpeed = 0;
+    private float hVal;
     //-------------------------------------------------------------------
 
     void Start()
@@ -96,18 +101,6 @@ public class Movement : MonoBehaviour
 
 
     }
-
-    // void OnCollisionEnter2D(Collision2D collision)
-    // {
-    //     if (collision.gameObject.layer == 11)
-    //     {
-    //         onMovingBlock = collision.gameObject;
-    //     }
-    //     else
-    //     {
-    //         onMovingBlock = null;
-    //     }
-    // }
     private void CheckHanging()
     {
         RaycastHit2D[] leftColsTop = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0, 0.5f, 0),
@@ -130,8 +123,6 @@ public class Movement : MonoBehaviour
             rightHanging = false;
         }
     }
-
-
     void Jump()
     {
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
@@ -140,8 +131,13 @@ public class Movement : MonoBehaviour
             {
                 gameObject.GetComponent<ParticleSystem>().Emit(10);
                 float oldXVel = body.velocity.x;
-                body.velocity = new Vector3(oldXVel, JumpHeight, 0);
+                body.velocity = new Vector2(oldXVel, JumpHeight);
                 print("You Jumped Off The Ground");
+                if (Math.Abs(abilitySpeed.x) > abilityControl)
+                {
+                    carrySpeed = abilitySpeed.x / 2;
+                    abilitySpeed = new Vector2(0, 0);
+                }
             }
             if (leftHanging)
             {
@@ -173,6 +169,7 @@ public class Movement : MonoBehaviour
             body.velocity = new Vector2(0, 0);
             abilitySpeed = new Vector2(abilityPower * Input.GetAxisRaw("Horizontal"), 0);
             canDash = false;
+            dashStartY = transform.position.y;
         }
 
     }
@@ -192,11 +189,7 @@ public class Movement : MonoBehaviour
     }
     void Move()
     {
-        //acceleration based
-        // float hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
-        // gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(hVal, 0));
-        //direction based
-        float hVal = 0;
+        hVal = 0;
         if (walljumpXVel < 3 && walljumpXVel >= 0 || walljumpXVel > -3 && walljumpXVel <= 0)
         {
             hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
@@ -204,15 +197,6 @@ public class Movement : MonoBehaviour
         oldYVel = body.velocity.y;
         oldVel = body.velocity;
         oldPos = gameObject.GetComponent<Transform>().position;
-        // if (abilitySpeed.x <= abilityControl && abilitySpeed.x >= -abilityControl && abilitySpeed.y <= abilityControl && abilitySpeed.y >= -abilityControl)
-        // {
-        body.AddForce(new Vector2((hVal + walljumpXVel) * acceleration, body.velocity.y));
-        // }
-        // else
-        // {
-        //     body.drag = abilityDrag;
-        // }
-        body.AddForce(abilitySpeed);
         walljumpXVel /= jumpSub;
     }
     void ApplyForces()
@@ -220,12 +204,17 @@ public class Movement : MonoBehaviour
         abilitySpeed = new Vector2(abilitySpeed.x / abilityDrag * xDrag, 0);
         if (abilitySpeed.x < abilityControl && abilitySpeed.x > -abilityControl)
         {
-            abilitySpeed = new Vector2(0, body.velocity.y);
+            abilitySpeed = new Vector2(0, 0);
             GetComponent<TrailRenderer>().emitting = false;
         }
         else
         {
+            // body.AddForce(new Vector2(0, -body.gravityScale * body.mass));
             GetComponent<TrailRenderer>().emitting = true;
+            if (transform.position.y != dashStartY)
+            {
+                transform.position = new Vector3(transform.position.x, dashStartY, transform.position.z);
+            }
         }
 
         body.velocity = new Vector2(body.velocity.x / xDrag, body.velocity.y);
@@ -235,9 +224,19 @@ public class Movement : MonoBehaviour
         }
         if (onMovingBlock != null)
         {
-            body.velocity = new Vector2(onMovingBlock.GetComponent<Rigidbody2D>().velocity.x, body.velocity.y);
+            blockVel = onMovingBlock.GetComponent<Rigidbody2D>().velocity;
             grounded = true;
             canDash = true;
+            print(blockVel);
         }
+        else
+        {
+            blockVel = new Vector2(0, 0);
+        }
+        body.AddForce(new Vector2((hVal + walljumpXVel) * acceleration, body.velocity.y));
+        body.velocity += blockVel / 2;
+        body.AddForce(abilitySpeed);
+        body.AddForce(new Vector2(carrySpeed, 0));
+        carrySpeed /= 1.08f;
     }
 }
