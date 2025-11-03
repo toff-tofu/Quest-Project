@@ -36,6 +36,10 @@ public class Movement : MonoBehaviour
     private float dashStartY;
     private float carrySpeed = 0;
     private float hVal;
+    private float coyoteTime = 0.2f;
+    private float coyoteTimeCounter = 0;
+    private float jumpBufferTime = 0.2f;
+    private float jumpBufferCounter = 0;
     //-------------------------------------------------------------------
 
     void Start()
@@ -51,7 +55,6 @@ public class Movement : MonoBehaviour
         Jump();
         Ability();
     }
-    // Update is called once per frame
     void FixedUpdate()
     {
         Move();
@@ -62,9 +65,9 @@ public class Movement : MonoBehaviour
     private void CheckGrounded()
     {
         RaycastHit2D[] leftCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0.4f, 0, 0),
-                                                        Vector2.down, 0.8f, LayerMask.GetMask("Block"));
+                                                        Vector2.down, 0.6f, LayerMask.GetMask("Block"));
         RaycastHit2D[] rightCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0.4f, 0, 0),
-                                                        Vector2.down, 0.8f, LayerMask.GetMask("Block"));
+                                                        Vector2.down, 0.6f, LayerMask.GetMask("Block"));
         grounded = leftCols.Length > 0 || rightCols.Length > 0;
         if (grounded)
         {
@@ -125,20 +128,44 @@ public class Movement : MonoBehaviour
     }
     void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (grounded)
         {
-            if (grounded)
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            jumpBufferCounter = jumpBufferTime;
+        }
+        else
+        {
+            jumpBufferCounter -= Time.deltaTime;
+        }
+
+        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
+        {
+            body.velocity = new Vector2(body.velocity.x, JumpHeight);
+            if (Math.Abs(abilitySpeed.x) > abilityControl)
             {
-                gameObject.GetComponent<ParticleSystem>().Emit(10);
-                float oldXVel = body.velocity.x;
-                body.velocity = new Vector2(oldXVel, JumpHeight);
-                print("You Jumped Off The Ground");
-                if (Math.Abs(abilitySpeed.x) > abilityControl)
-                {
-                    carrySpeed = abilitySpeed.x / 2;
-                    abilitySpeed = new Vector2(0, 0);
-                }
+                carrySpeed = abilitySpeed.x / 2;
+                abilitySpeed = new Vector2(0, 0);
             }
+
+            jumpBufferCounter = 0f;
+        }
+        if (Input.GetKeyUp(KeyCode.UpArrow) && body.velocity.y > 0f)
+        {
+            body.velocity = new Vector2(body.velocity.x, body.velocity.y * 0.5f);
+
+            coyoteTimeCounter = 0f;
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
             if (leftHanging)
             {
                 gameObject.GetComponent<ParticleSystem>().Emit(5);
