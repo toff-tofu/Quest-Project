@@ -1,36 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Transition : MonoBehaviour
 {
     // Start is called before the first frame update
-    private Camera mainCamera;
-    public GameObject visual;
+    [SerializeField] private Camera mainCamera;
+    public CompositeCollider2D room;
     public GameObject player;
-    public float size = 0.5f;
     void Start()
     {
         mainCamera = Camera.main;
-        player = GameObject.FindGameObjectWithTag("Player");
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (player.GetComponent<Rigidbody2D>().velocity.x > 0 &&
-        player.GetComponent<Movement>().pPos.x < transform.position.x - (size / 2) &&
-        player.transform.position.x >= transform.position.x - (size / 2))
+        // Smoothly follow the player when far enough
+        float distance = Vector3.Distance(mainCamera.transform.position, player.transform.position);
+        if (distance > 0.01f)
         {
-            mainCamera.transform.position = visual.transform.position + new Vector3(0, 0, -10);
-            player.transform.position += new Vector3(1, 0, 0);
+            float x1 = Mathf.Lerp(mainCamera.transform.position.x, player.transform.position.x, 0.1f);
+            float y1 = Mathf.Lerp(mainCamera.transform.position.y, player.transform.position.y, 0.1f);
+            mainCamera.transform.position = new Vector3(x1, y1, mainCamera.transform.position.z);
         }
-        if (player.GetComponent<Rigidbody2D>().velocity.x < 0 &&
-        player.GetComponent<Movement>().pPos.x > transform.position.x + (size / 2) &&
-        player.transform.position.x <= transform.position.x + (size / 2))
-        {
-            mainCamera.transform.position = visual.transform.position + new Vector3(0, 0, -10);
-            player.transform.position -= new Vector3(1, 0, 0);
-        }
+
+        float x = Mathf.Clamp(mainCamera.transform.position.x, room.bounds.min.x + mainCamera.orthographicSize * mainCamera.aspect, room.bounds.max.x - mainCamera.orthographicSize * mainCamera.aspect);
+        float y = Mathf.Clamp(mainCamera.transform.position.y, room.bounds.min.y + mainCamera.orthographicSize * mainCamera.aspect, room.bounds.max.y - mainCamera.orthographicSize * mainCamera.aspect);
+        mainCamera.transform.position = new Vector3(x, y, mainCamera.transform.position.z);
     }
 }

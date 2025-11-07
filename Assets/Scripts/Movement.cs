@@ -17,9 +17,11 @@ public class Movement : MonoBehaviour
     public float abilityControl;
     public float xDrag;
     public float terminalVel;
-    public Collider2D groundCheck;
+    public Collider2D hitBox;
+    public Collider2D hurtBox;
     public LayerMask groundMask;
     public LayerMask buttonMask;
+    public LayerMask hazardMask;
     //-------------------------------------------------------------------
 
     private bool grounded = false;
@@ -30,6 +32,7 @@ public class Movement : MonoBehaviour
     private Vector2 oldVel;
     private Vector3 oldPos;
     private float oldYVel;
+    private Vector2 resPos;
     private Vector2 abilitySpeed = new Vector2(0, 0);
     private bool canDash = false;
     private GameObject onMovingBlock = null;
@@ -47,8 +50,7 @@ public class Movement : MonoBehaviour
     void Start()
     {
         oldYVel = body.velocity.y;
-        // trail = GetComponent<TrailRenderer>().time;
-        // trail = 0;
+        resPos = body.position;
     }
     void Update()
     {
@@ -79,7 +81,7 @@ public class Movement : MonoBehaviour
         {
             canDash = true;
         }
-        Collider2D[] overlaps = Physics2D.OverlapAreaAll(groundCheck.bounds.min, groundCheck.bounds.max, groundMask);
+        Collider2D[] overlaps = Physics2D.OverlapAreaAll(hitBox.bounds.min, hitBox.bounds.max, groundMask);
         if (overlaps.Length == 0)
         {
             onMovingBlock = null;
@@ -190,7 +192,12 @@ public class Movement : MonoBehaviour
     {
         if (gameObject.GetComponent<Transform>().position.y < -30)
         {
-            body.position = new Vector2(0, 0);
+            body.position = resPos;
+        }
+        Collider2D[] overlaps2 = Physics2D.OverlapAreaAll(hitBox.bounds.min, hitBox.bounds.max, hazardMask);
+        if (overlaps2.Length > 0)
+        {
+            body.position = resPos;
         }
     }
     void Ability()
@@ -272,7 +279,7 @@ public class Movement : MonoBehaviour
     }
     void TouchButton()
     {
-        Collider2D[] overlaps1 = Physics2D.OverlapAreaAll(groundCheck.bounds.min, groundCheck.bounds.max, buttonMask);
+        Collider2D[] overlaps1 = Physics2D.OverlapAreaAll(hitBox.bounds.min, hitBox.bounds.max, buttonMask);
         foreach (Collider2D col in overlaps1)
         {
             print("Your touching smth");
