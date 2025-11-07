@@ -22,6 +22,7 @@ public class Movement : MonoBehaviour
     public LayerMask groundMask;
     public LayerMask buttonMask;
     public LayerMask hazardMask;
+    public bool facingRight = true;
     //-------------------------------------------------------------------
 
     private bool grounded = false;
@@ -45,12 +46,18 @@ public class Movement : MonoBehaviour
     private float jumpBufferTime = 0.2f;
     private float jumpBufferCounter = 0;
     public Vector2 pPos = new Vector3();
+    private CameraFollowObject _CameraFollowObject;
+    [Header("Camera Follow Object")]
+    [SerializeField] private GameObject cameraFollow;
+    private float _fallSpeedYDampingChangeThreshold;
     //-------------------------------------------------------------------
 
     void Start()
     {
         oldYVel = body.velocity.y;
         resPos = body.position;
+        _CameraFollowObject = cameraFollow.GetComponent<CameraFollowObject>();
+        _fallSpeedYDampingChangeThreshold = CameraManager.instance.FallSpeedYDampingThreshold;
     }
     void Update()
     {
@@ -60,7 +67,15 @@ public class Movement : MonoBehaviour
         CheckHanging();
         Jump();
         Ability();
-
+        if (body.velocity.y < _fallSpeedYDampingChangeThreshold && !CameraManager.instance.isLerpingY && !CameraManager.instance.lerpedFromPlayerFalling)
+        {
+            CameraManager.instance.LerpYDamping(true);
+        }
+        else if (body.velocity.y >= 0f && !CameraManager.instance.isLerpingY && CameraManager.instance.lerpedFromPlayerFalling)
+        {
+            CameraManager.instance.lerpedFromPlayerFalling = false;
+            CameraManager.instance.LerpYDamping(false);
+        }
     }
     void FixedUpdate()
     {
@@ -69,6 +84,39 @@ public class Movement : MonoBehaviour
         ApplyForces();
         CapSpeed();
         Die();
+        if (Math.Abs(body.velocity.x) > 0.1f)
+        {
+            TurnCheck();
+        }
+    }
+    void TurnCheck()
+    {
+        if (Input.GetAxisRaw("Horizontal") > 0 && !facingRight)
+        {
+            Turn();
+        }
+        else if (Input.GetAxisRaw("Horizontal") < 0 && facingRight)
+        {
+            Turn();
+        }
+    }
+    void Turn()
+    {
+        if (facingRight)
+        {
+            Vector3 rotator = new Vector3(transform.rotation.x, 180f, transform.rotation.z);
+            transform.rotation = Quaternion.Euler(rotator);
+            facingRight = !facingRight;
+
+            _CameraFollowObject.CallTurn();
+        }
+        else
+        {
+            Vector3 rotator = new Vector3(transform.rotation.x, 0, transform.rotation.z);
+            transform.rotation = Quaternion.Euler(rotator);
+            facingRight = !facingRight;
+            _CameraFollowObject.CallTurn();
+        }
     }
     private void CheckGrounded()
     {
@@ -251,7 +299,7 @@ public class Movement : MonoBehaviour
             GetComponent<TrailRenderer>().emitting = true;
             if (transform.position.y != dashStartY)
             {
-                transform.position = new Vector3(transform.position.x, dashStartY, transform.position.z);
+                body.MovePosition(new Vector3(transform.position.x, dashStartY, transform.position.z));
             }
         }
 
