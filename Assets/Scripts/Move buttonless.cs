@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
 
-public class MoveButtonless : MonoBehaviour
+public class Move : MonoBehaviour
 {
     public GameObject node1;
     public GameObject node2;

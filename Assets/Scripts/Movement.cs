@@ -19,6 +19,7 @@ public class Movement : MonoBehaviour
     public float terminalVel;
     public Collider2D groundCheck;
     public LayerMask groundMask;
+    public LayerMask buttonMask;
     //-------------------------------------------------------------------
 
     private bool grounded = false;
@@ -40,6 +41,7 @@ public class Movement : MonoBehaviour
     private float coyoteTimeCounter = 0;
     private float jumpBufferTime = 0.2f;
     private float jumpBufferCounter = 0;
+    public Vector2 pPos = new Vector3();
     //-------------------------------------------------------------------
 
     void Start()
@@ -50,13 +52,17 @@ public class Movement : MonoBehaviour
     }
     void Update()
     {
+
         CheckGrounded();
+        TouchButton();
         CheckHanging();
         Jump();
         Ability();
+
     }
     void FixedUpdate()
     {
+        pPos = gameObject.GetComponent<Transform>().position;
         Move();
         ApplyForces();
         CapSpeed();
@@ -73,8 +79,6 @@ public class Movement : MonoBehaviour
         {
             canDash = true;
         }
-
-
         Collider2D[] overlaps = Physics2D.OverlapAreaAll(groundCheck.bounds.min, groundCheck.bounds.max, groundMask);
         if (overlaps.Length == 0)
         {
@@ -265,5 +269,19 @@ public class Movement : MonoBehaviour
         body.AddForce(abilitySpeed);
         body.AddForce(new Vector2(carrySpeed, 0));
         carrySpeed /= 1.08f;
+    }
+    void TouchButton()
+    {
+        Collider2D[] overlaps1 = Physics2D.OverlapAreaAll(groundCheck.bounds.min, groundCheck.bounds.max, buttonMask);
+        foreach (Collider2D col in overlaps1)
+        {
+            print("Your touching smth");
+            if (col.gameObject.tag == "Moving Block Button")
+            {
+                print("You have found the button");
+                col.gameObject.GetComponent<ButtonPress>().isPressed = true;
+                Destroy(col.gameObject.GetComponent<Collider2D>());
+            }
+        }
     }
 }
