@@ -16,7 +16,7 @@ public class CameraManager : MonoBehaviour
     public float FallSpeedYDampingThreshold = -15f;
 
     public bool isLerpingY { get; private set; }
-    public bool lerpedFromPlayerFalling { get; set; }
+    public bool lerpedFromPlayerFalling;
     private Coroutine lerpYPanCoroutine;
     private CinemachineVirtualCamera _currentCamera;
     private CinemachineFramingTransposer _framingTransposer;
@@ -64,7 +64,38 @@ public class CameraManager : MonoBehaviour
         isLerpingY = false;
     }
 
-    // public void SwapCamera(CinemachineVirtualCamera cameraLeft, CinemachineVirtualCamera cameraRight, CinemachineVirtualCamera cameraTop, CinemachineVirtualCamera cameraBotton, Vector2 exitDirection)
+    public void SwapCamera(CinemachineVirtualCamera cameraLeft, CinemachineVirtualCamera cameraRight, CinemachineVirtualCamera cameraTop, CinemachineVirtualCamera cameraBotton, Vector2 exitDirection)
+    {
+        if (_currentCamera == cameraLeft && exitDirection.x > 0f)
+        {
+            cameraRight.enabled = true;
+            cameraLeft.enabled = false;
+            _currentCamera = cameraRight;
+            _framingTransposer = _currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        }
+        else if (_currentCamera == cameraRight && exitDirection.x < 0f)
+        {
+            cameraLeft.enabled = true;
+            cameraRight.enabled = false;
+            _currentCamera = cameraLeft;
+            _framingTransposer = _currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        }
+        else if (_currentCamera == cameraTop && exitDirection.y < 0f)
+        {
+            cameraBotton.enabled = true;
+            cameraTop.enabled = false;
+            _currentCamera = cameraBotton;
+            _framingTransposer = _currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        }
+        else if (_currentCamera == cameraBotton && exitDirection.y > 0f)
+        {
+            cameraTop.enabled = true;
+            cameraBotton.enabled = false;
+            _currentCamera = cameraTop;
+            _framingTransposer = _currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        }
+    }
+    // public void SwapCamera(CinemachineVirtualCamera cameraLeft, CinemachineVirtualCamera cameraRight, Vector2 exitDirection)
     // {
     //     if (_currentCamera == cameraLeft && exitDirection.x > 0f)
     //     {
@@ -81,21 +112,4 @@ public class CameraManager : MonoBehaviour
     //         _framingTransposer = _currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
     //     }
     // }
-    public void SwapCamera(CinemachineVirtualCamera cameraLeft, CinemachineVirtualCamera cameraRight, Vector2 exitDirection)
-    {
-        if (_currentCamera == cameraLeft && exitDirection.x > 0f)
-        {
-            cameraRight.enabled = true;
-            cameraLeft.enabled = false;
-            _currentCamera = cameraRight;
-            _framingTransposer = _currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-        }
-        else if (_currentCamera == cameraRight && exitDirection.x < 0f)
-        {
-            cameraLeft.enabled = true;
-            cameraRight.enabled = false;
-            _currentCamera = cameraLeft;
-            _framingTransposer = _currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-        }
-    }
 }
