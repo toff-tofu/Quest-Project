@@ -250,7 +250,7 @@ public class Movement : MonoBehaviour
     }
     void Ability()
     {
-        if (Input.GetKeyDown("x") && canDash)
+        if (Input.GetKeyDown("x") && canDash && abilitySpeed.x == 0)
         {
             body.velocity = new Vector2(0, 0);
             abilitySpeed = new Vector2(abilityPower * Input.GetAxisRaw("Horizontal"), 0);
