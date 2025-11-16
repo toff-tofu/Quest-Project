@@ -30,7 +30,7 @@ public class Move : MonoBehaviour
         //                              (transform.position.y - nextNode.transform.position.y) / speed) / 500;
         if (UnityEngine.Vector2.Distance(transform.position, nextNode.transform.position) < 0.1f)
         {
-            transform.position = nextNode.transform.position;
+            body.MovePosition(nextNode.transform.position);
             body.velocity = new UnityEngine.Vector2(0, 0);
             if (loop)
             {

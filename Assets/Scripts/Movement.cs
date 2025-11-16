@@ -50,6 +50,9 @@ public class Movement : MonoBehaviour
     [Header("Camera Follow Object")]
     [SerializeField] private GameObject cameraFollow;
     private float _fallSpeedYDampingChangeThreshold;
+
+    [SerializeField] private float dashDuration = 0.2f;
+    private Coroutine dashCoroutine;
     //-------------------------------------------------------------------
 
     void Start()
@@ -252,10 +255,8 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKeyDown("x") && canDash && abilitySpeed.x == 0)
         {
-            body.velocity = new Vector2(0, 0);
-            abilitySpeed = new Vector2(abilityPower * Input.GetAxisRaw("Horizontal"), 0);
+            beginDash();
             canDash = false;
-            dashStartY = transform.position.y;
         }
 
     }
@@ -287,21 +288,21 @@ public class Movement : MonoBehaviour
     }
     void ApplyForces()
     {
-        abilitySpeed = new Vector2(abilitySpeed.x / abilityDrag * xDrag, 0);
-        if (abilitySpeed.x < abilityControl && abilitySpeed.x > -abilityControl)
-        {
-            abilitySpeed = new Vector2(0, 0);
-            GetComponent<TrailRenderer>().emitting = false;
-        }
-        else
-        {
-            // body.AddForce(new Vector2(0, -body.gravityScale * body.mass));
-            GetComponent<TrailRenderer>().emitting = true;
-            if (transform.position.y != dashStartY)
-            {
-                body.MovePosition(new Vector3(transform.position.x, dashStartY, transform.position.z));
-            }
-        }
+        // abilitySpeed = new Vector2(abilitySpeed.x / abilityDrag * xDrag, 0);
+        // if (abilitySpeed.x < abilityControl && abilitySpeed.x > -abilityControl)
+        // {
+        //     abilitySpeed = new Vector2(0, 0);
+        //     GetComponent<TrailRenderer>().emitting = false;
+        // }
+        // else
+        // {
+        //     // body.AddForce(new Vector2(0, -body.gravityScale * body.mass));
+        //     GetComponent<TrailRenderer>().emitting = true;
+        //     if (transform.position.y != dashStartY)
+        //     {
+        //         transform.position = new Vector3(transform.position.x, dashStartY, transform.position.z);
+        //     }
+        // }
 
         body.velocity = new Vector2(body.velocity.x / xDrag, body.velocity.y);
         if (body.velocity.y < -terminalVel)
@@ -337,6 +338,44 @@ public class Movement : MonoBehaviour
                 col.gameObject.GetComponent<ButtonPress>().isPressed = true;
                 Destroy(col.gameObject.GetComponent<Collider2D>());
             }
+        }
+    }
+
+    public void beginDash()
+    {
+        dashCoroutine = StartCoroutine(Dash());
+        GetComponent<TrailRenderer>().emitting = true;
+    }
+
+    private IEnumerator Dash()
+    {
+        float dashDirection = DetermineDashDirection();
+        float startX = transform.position.x;
+        float elapsedTime = 0f;
+        float y = transform.position.y;
+        while (elapsedTime < dashDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float x = Mathf.Lerp(startX, dashDirection, elapsedTime / dashDuration);
+            body.MovePosition(new Vector2(x, y));
+            yield return null;
+            if (dashDuration - elapsedTime < 0.05f)
+            {
+                body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+                GetComponent<TrailRenderer>().emitting = false;
+            }
+        }
+    }
+
+    private float DetermineDashDirection()
+    {
+        if (facingRight)
+        {
+            return transform.position.x + abilityPower;
+        }
+        else
+        {
+            return transform.position.x - abilityPower;
         }
     }
 }
