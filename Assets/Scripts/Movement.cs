@@ -53,6 +53,7 @@ public class Movement : MonoBehaviour
 
     [SerializeField] private float dashDuration = 0.2f;
     private Coroutine dashCoroutine;
+    public bool usingCircle = false;
     //-------------------------------------------------------------------
 
     void Start()
@@ -340,13 +341,11 @@ public class Movement : MonoBehaviour
             }
         }
     }
-
     public void beginDash()
     {
         dashCoroutine = StartCoroutine(Dash());
         GetComponent<TrailRenderer>().emitting = true;
     }
-
     private IEnumerator Dash()
     {
         float dashDirection = DetermineDashDirection();
@@ -366,7 +365,6 @@ public class Movement : MonoBehaviour
             }
         }
     }
-
     private float DetermineDashDirection()
     {
         if (facingRight)
@@ -378,4 +376,5 @@ public class Movement : MonoBehaviour
             return transform.position.x - abilityPower;
         }
     }
+
 }
