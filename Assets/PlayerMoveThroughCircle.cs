@@ -18,6 +18,8 @@ public class PlayerMoveThroughCircle : MonoBehaviour
     [SerializeField] private LayerMask playerMask;
     private Coroutine circleCoroutine;
     private float circleDuration = 0.3f;
+    private float circleBufferCounter = 0f;
+    private float circleBufferTime = 0.2f;
     void Start()
     {
         playerBody = player.GetComponent<Rigidbody2D>();
@@ -36,52 +38,24 @@ public class PlayerMoveThroughCircle : MonoBehaviour
     }
     void Update()
     {
-        // if (_insideCircle) { preIn = true; } else { preIn = false; }
-        // CheckCollisions();
+        if (Input.GetKeyDown("c"))
+        {
+            circleBufferCounter = circleBufferTime;
+        }
+        else
+        {
+            circleBufferCounter -= Time.deltaTime;
+        }
 
         if (_insideCircle)
         {
 
-            // transform.LookAt(new Vector2(startPosition.x, startPosition.y));
-            if (Input.GetKeyDown("c"))
+            if (circleBufferCounter > 0f && player.GetComponent<Movement>().dashing == false)
             {
                 circleCoroutine = StartCoroutine(CircleDash());
+                player.GetComponent<Movement>().usingCircle = true;
+                circleBufferCounter = 0f;
             }
-            // if (!Input.GetKeyDown("c"))
-            // {
-            //     ResetCoroutine();
-            // }
-        }
-        else
-        {
-            // _areaEffector.forceMagnitude = 0f;
-            // player.GetComponent<Movement>().xDrag = _pxdrag;
-            // playerBody.gravityScale = _pgravity;
-        }
-    }
-    void CheckCollisions()
-    {
-        // if ((player.gameObject.transform.position.x - transform.position.x) * *2 + (player.gameObject.transform.position.y - transform.position.y) * *2 < (gameObject.GetComponent<CircleCollider2D>().radius * transform.localScale.x) * *2)
-        // {
-        //     _insideCircle = true;
-        // }
-        // else
-        // {
-        //     _insideCircle = false;
-        // }
-        Collider2D[] overlaps = Physics2D.OverlapAreaAll(hitBox.bounds.min, hitBox.bounds.max, playerMask);
-        if (overlaps.Length == 0)
-        {
-            _insideCircle = false;
-            // if (preIn == false)
-            // {
-            //     startPosition = player.transform.position;
-            //     preIn = true;
-            // }
-        }
-        else
-        {
-            _insideCircle = true;
         }
     }
     void OnTriggerEnter2D(Collider2D collision)
@@ -117,6 +91,7 @@ public class PlayerMoveThroughCircle : MonoBehaviour
             if (circleDuration - elapsedTime < 0.05f)
             {
                 playerBody.velocity = slope.normalized * gameObject.GetComponent<CircleCollider2D>().radius;
+                player.GetComponent<Movement>().canDash = true;
             }
         }
     }

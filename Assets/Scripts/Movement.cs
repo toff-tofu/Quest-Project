@@ -35,7 +35,7 @@ public class Movement : MonoBehaviour
     private float oldYVel;
     private Vector2 resPos;
     private Vector2 abilitySpeed = new Vector2(0, 0);
-    private bool canDash = false;
+    public bool canDash = false;
     private GameObject onMovingBlock = null;
     private Vector2 blockVel = new Vector2(0, 0);
     private float dashStartY;
@@ -54,6 +54,7 @@ public class Movement : MonoBehaviour
     [SerializeField] private float dashDuration = 0.2f;
     private Coroutine dashCoroutine;
     public bool usingCircle = false;
+    public bool dashing = false;
     //-------------------------------------------------------------------
 
     void Start()
@@ -345,6 +346,7 @@ public class Movement : MonoBehaviour
     {
         dashCoroutine = StartCoroutine(Dash());
         GetComponent<TrailRenderer>().emitting = true;
+        dashing = true;
     }
     private IEnumerator Dash()
     {
@@ -362,6 +364,7 @@ public class Movement : MonoBehaviour
             {
                 body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
                 GetComponent<TrailRenderer>().emitting = false;
+                dashing = false;
             }
         }
     }
