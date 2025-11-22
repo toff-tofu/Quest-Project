@@ -223,7 +223,7 @@ public class Movement : MonoBehaviour
             coyoteTimeCounter = 0f;
         }
 
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (jumpBufferCounter > 0f && (leftHanging || rightHanging))
         {
             if (leftHanging)
             {
@@ -360,6 +360,14 @@ public class Movement : MonoBehaviour
             float x = Mathf.Lerp(startX, dashDirection, elapsedTime / dashDuration);
             body.MovePosition(new Vector2(x, y));
             yield return null;
+            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                elapsedTime = dashDuration;
+                body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+                GetComponent<TrailRenderer>().emitting = false;
+                dashing = false;
+                yield break;
+            }
             if (dashDuration - elapsedTime < 0.05f)
             {
                 body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
