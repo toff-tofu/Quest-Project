@@ -33,7 +33,7 @@ public class Movement : MonoBehaviour
     private Vector2 oldVel;
     private Vector3 oldPos;
     private float oldYVel;
-    private Vector2 resPos;
+    public Vector2 resPos;
     private Vector2 abilitySpeed = new Vector2(0, 0);
     public bool canDash = false;
     private GameObject onMovingBlock = null;
@@ -360,7 +360,7 @@ public class Movement : MonoBehaviour
             float x = Mathf.Lerp(startX, dashDirection, elapsedTime / dashDuration);
             body.MovePosition(new Vector2(x, y));
             yield return null;
-            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.UpArrow))
+            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.UpArrow) && (leftHanging || rightHanging))
             {
                 elapsedTime = dashDuration;
                 body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
