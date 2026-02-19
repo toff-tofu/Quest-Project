@@ -23,6 +23,8 @@ public class Movement : MonoBehaviour
     public LayerMask buttonMask;
     public LayerMask hazardMask;
     public bool facingRight = true;
+    public Animator animator;
+
     //-------------------------------------------------------------------
 
     private bool grounded = false;
@@ -45,6 +47,7 @@ public class Movement : MonoBehaviour
     private float coyoteTimeCounter = 0;
     private float jumpBufferTime = 0.2f;
     private float jumpBufferCounter = 0;
+    private bool jumping = false;
     public Vector2 pPos = new Vector3();
     private CameraFollowObject _CameraFollowObject;
     [Header("Camera Follow Object")]
@@ -93,6 +96,7 @@ public class Movement : MonoBehaviour
         {
             TurnCheck();
         }
+        SetAnimators();
     }
     void TurnCheck()
     {
@@ -190,9 +194,11 @@ public class Movement : MonoBehaviour
         if (grounded)
         {
             coyoteTimeCounter = coyoteTime;
+            jumping = false;
         }
         else
         {
+            jumping = true;
             coyoteTimeCounter -= Time.deltaTime;
         }
 
@@ -207,6 +213,7 @@ public class Movement : MonoBehaviour
 
         if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
         {
+
             body.velocity = new Vector2(body.velocity.x, JumpHeight);
             if (Math.Abs(abilitySpeed.x) > abilityControl)
             {
@@ -227,14 +234,14 @@ public class Movement : MonoBehaviour
         {
             if (leftHanging)
             {
-                gameObject.GetComponent<ParticleSystem>().Emit(5);
+                // gameObject.GetComponent<ParticleSystem>().Emit(5);
                 float oldXVel = body.velocity.x;
                 body.velocity = new Vector3(oldXVel, JumpHeight, 0);
                 walljumpXVel = MoveSpeed;
             }
             if (rightHanging)
             {
-                gameObject.GetComponent<ParticleSystem>().Emit(5);
+                // gameObject.GetComponent<ParticleSystem>().Emit(5);
                 float oldXVel = body.velocity.x;
                 body.velocity = new Vector3(oldXVel, JumpHeight, 0);
                 walljumpXVel = -MoveSpeed;
@@ -322,6 +329,7 @@ public class Movement : MonoBehaviour
         {
             blockVel = new Vector2(0, 0);
         }
+
         body.AddForce(new Vector2((hVal + walljumpXVel) * acceleration, body.velocity.y));
         body.velocity += blockVel / 2;
         body.AddForce(abilitySpeed);
@@ -387,5 +395,31 @@ public class Movement : MonoBehaviour
             return transform.position.x - abilityPower;
         }
     }
-
+    void SetAnimators()
+    {
+        if (hVal != 0)
+        {
+            animator.SetBool("Moving", true);
+        }
+        else
+        {
+            animator.SetBool("Moving", false);
+        }
+        if (dashing)
+        {
+            animator.SetBool("Dashing", true);
+        }
+        else
+        {
+            animator.SetBool("Dashing", false);
+        }
+        if (jumping)
+        {
+            animator.SetBool("Jumping", true);
+        }
+        else
+        {
+            animator.SetBool("Jumping", false);
+        }
+    }
 }
