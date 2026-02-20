@@ -70,6 +70,7 @@ public class Movement : MonoBehaviour
         resPos = body.position;
         _CameraFollowObject = cameraFollow.GetComponent<CameraFollowObject>();
         _fallSpeedYDampingChangeThreshold = CameraManager.instance.FallSpeedYDampingThreshold;
+        animator = GetComponentInChildren<Animator>();
     }
     void Update()
     {
@@ -101,6 +102,7 @@ public class Movement : MonoBehaviour
             TurnCheck();
         }
         SetAnimators();
+        // body.position = new Vector2(RoundEigth(body.position.x), RoundEigth(body.position.y));
     }
     void TurnCheck()
     {
@@ -187,6 +189,14 @@ public class Movement : MonoBehaviour
                                                         Vector2.right, 0.6f, LayerMask.GetMask("Block"));
         leftHanging = leftColsTop.Length > 0 || leftColsBottom.Length > 0;
         rightHanging = rightColsTop.Length > 0 || rightColsBottom.Length > 0;
+        if (leftColsTop.Length > 0 || rightColsTop.Length > 0 && rightColsBottom.Length <= 0 && leftColsBottom.Length <= 0)
+        {
+            animator.SetBool("Wall Hanging", true);
+        }
+        else
+        {
+            animator.SetBool("Wall Hanging", false);
+        }
         if (leftHanging || rightHanging)
         {
             canDash = true;
@@ -203,6 +213,7 @@ public class Movement : MonoBehaviour
         {
             coyoteTimeCounter = coyoteTime;
             animator.SetBool("Falling", false);
+            animator.SetBool("Falling Forward", false);
         }
         else
         {
@@ -215,7 +226,14 @@ public class Movement : MonoBehaviour
             else
             {
                 animator.SetBool("Rising", false);
-                animator.SetBool("Falling", true);
+                if (hVal != 0)
+                {
+                    animator.SetBool("Falling Forward", true);
+                }
+                else
+                {
+                    animator.SetBool("Falling", true);
+                }
             }
         }
 
@@ -322,11 +340,11 @@ public class Movement : MonoBehaviour
             hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
             animator.SetTrigger("Wall Jump Not Turned");
         }//Trigger animation if holding back to the wall
-        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed < walljumpXVel && facingRight)
+        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed < walljumpXVel && facingRight && walljumpXVel != 0)
         {
             animator.SetTrigger("Wall Jump Turned");
         }
-        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed > walljumpXVel && !facingRight)
+        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed > walljumpXVel && !facingRight && walljumpXVel != 0)
         {
             animator.SetTrigger("Wall Jump Turned");
         }
@@ -461,5 +479,9 @@ public class Movement : MonoBehaviour
         {
             animator.SetBool("Wall Clinging", false);
         }
+    }
+    float RoundEigth(float num)
+    {
+        return Mathf.Round(num * 8f) / 8f;
     }
 }
