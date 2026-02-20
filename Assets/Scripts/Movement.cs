@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.ShortcutManagement;
 using UnityEngine;
 
@@ -47,7 +48,9 @@ public class Movement : MonoBehaviour
     private float coyoteTimeCounter = 0;
     private float jumpBufferTime = 0.2f;
     private float jumpBufferCounter = 0;
-    private bool jumping = false;
+    private bool canTurn = false;
+    // private bool falling = false;
+    // private bool jumpRise = false;
     public Vector2 pPos = new Vector3();
     private CameraFollowObject _CameraFollowObject;
     [Header("Camera Follow Object")]
@@ -58,6 +61,7 @@ public class Movement : MonoBehaviour
     private Coroutine dashCoroutine;
     public bool usingCircle = false;
     public bool dashing = false;
+
     //-------------------------------------------------------------------
 
     void Start()
@@ -111,21 +115,25 @@ public class Movement : MonoBehaviour
     }
     void Turn()
     {
-        if (facingRight)
+        if (canTurn)
         {
-            Vector3 rotator = new Vector3(transform.rotation.x, 180f, transform.rotation.z);
-            transform.rotation = Quaternion.Euler(rotator);
-            facingRight = !facingRight;
+            if (facingRight)
+            {
+                Vector3 rotator = new Vector3(transform.rotation.x, 180f, transform.rotation.z);
+                transform.rotation = Quaternion.Euler(rotator);
+                facingRight = !facingRight;
 
-            _CameraFollowObject.CallTurn();
+                _CameraFollowObject.CallTurn();
+            }
+            else
+            {
+                Vector3 rotator = new Vector3(transform.rotation.x, 0, transform.rotation.z);
+                transform.rotation = Quaternion.Euler(rotator);
+                facingRight = !facingRight;
+                _CameraFollowObject.CallTurn();
+            }
         }
-        else
-        {
-            Vector3 rotator = new Vector3(transform.rotation.x, 0, transform.rotation.z);
-            transform.rotation = Quaternion.Euler(rotator);
-            facingRight = !facingRight;
-            _CameraFollowObject.CallTurn();
-        }
+
     }
     private void CheckGrounded()
     {
@@ -194,12 +202,21 @@ public class Movement : MonoBehaviour
         if (grounded)
         {
             coyoteTimeCounter = coyoteTime;
-            jumping = false;
+            animator.SetBool("Falling", false);
         }
         else
         {
-            jumping = true;
+
             coyoteTimeCounter -= Time.deltaTime;
+            if (body.velocity.y > 0)
+            {
+                animator.SetBool("Rising", true);
+            }
+            else
+            {
+                animator.SetBool("Rising", false);
+                animator.SetBool("Falling", true);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -213,7 +230,7 @@ public class Movement : MonoBehaviour
 
         if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
         {
-
+            animator.SetTrigger("Jumped");
             body.velocity = new Vector2(body.velocity.x, JumpHeight);
             if (Math.Abs(abilitySpeed.x) > abilityControl)
             {
@@ -246,6 +263,10 @@ public class Movement : MonoBehaviour
                 body.velocity = new Vector3(oldXVel, JumpHeight, 0);
                 walljumpXVel = -MoveSpeed;
             }
+            animator.SetTrigger("Wall Jumped");
+            Turn();
+            canTurn = false;
+            jumpBufferCounter = 0f;
         }
     }
     void Die()
@@ -288,7 +309,26 @@ public class Movement : MonoBehaviour
         hVal = 0;
         if (walljumpXVel < 3 && walljumpXVel >= 0 || walljumpXVel > -3 && walljumpXVel <= 0)
         {
+            canTurn = true;
             hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
+        }//Continue if holding direction away from wall
+        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed > walljumpXVel && facingRight)
+        {
+            hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
+            animator.SetTrigger("Wall Jump Not Turned");
+        }
+        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed < walljumpXVel && !facingRight)
+        {
+            hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
+            animator.SetTrigger("Wall Jump Not Turned");
+        }//Trigger animation if holding back to the wall
+        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed < walljumpXVel && facingRight)
+        {
+            animator.SetTrigger("Wall Jump Turned");
+        }
+        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed > walljumpXVel && !facingRight)
+        {
+            animator.SetTrigger("Wall Jump Turned");
         }
         oldYVel = body.velocity.y;
         oldVel = body.velocity;
@@ -413,13 +453,13 @@ public class Movement : MonoBehaviour
         {
             animator.SetBool("Dashing", false);
         }
-        if (jumping)
+        if (leftHanging || rightHanging)
         {
-            animator.SetBool("Jumping", true);
+            animator.SetBool("Wall Clinging", true);
         }
         else
         {
-            animator.SetBool("Jumping", false);
+            animator.SetBool("Wall Clinging", false);
         }
     }
 }
