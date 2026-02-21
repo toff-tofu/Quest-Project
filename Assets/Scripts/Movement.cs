@@ -229,10 +229,12 @@ public class Movement : MonoBehaviour
                 if (hVal != 0)
                 {
                     animator.SetBool("Falling Forward", true);
+                    animator.SetBool("Falling", false);
                 }
                 else
                 {
                     animator.SetBool("Falling", true);
+                    animator.SetBool("Falling Forward", false);
                 }
             }
         }
