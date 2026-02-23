@@ -187,8 +187,8 @@ public class Movement : MonoBehaviour
                                                         Vector2.right, 0.6f, LayerMask.GetMask("Block"));
         RaycastHit2D[] rightColsBottom = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0, 0.5f, 0),
                                                         Vector2.right, 0.6f, LayerMask.GetMask("Block"));
-        leftHanging = leftColsTop.Length > 0 || leftColsBottom.Length > 0;
-        rightHanging = rightColsTop.Length > 0 || rightColsBottom.Length > 0;
+        leftHanging = leftColsTop.Length > 0 && !facingRight || leftColsBottom.Length > 0 && !facingRight;
+        rightHanging = rightColsTop.Length > 0 && facingRight || rightColsBottom.Length > 0 && facingRight;
         if (leftColsTop.Length > 0 || rightColsTop.Length > 0 && rightColsBottom.Length <= 0 && leftColsBottom.Length <= 0)
         {
             animator.SetBool("Wall Hanging", true);
