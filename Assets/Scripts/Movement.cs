@@ -139,9 +139,9 @@ public class Movement : MonoBehaviour
     }
     private void CheckGrounded()
     {
-        RaycastHit2D[] leftCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0.4f, 0, 0),
+        RaycastHit2D[] leftCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(hitBox.bounds.size.x / 2, 0, 0),
                                                         Vector2.down, 0.6f, LayerMask.GetMask("Block"));
-        RaycastHit2D[] rightCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0.4f, 0, 0),
+        RaycastHit2D[] rightCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(hitBox.bounds.size.x / 2, 0, 0),
                                                         Vector2.down, 0.6f, LayerMask.GetMask("Block"));
         grounded = leftCols.Length > 0 || rightCols.Length > 0;
         if (grounded)
@@ -179,13 +179,13 @@ public class Movement : MonoBehaviour
     }
     private void CheckHanging()
     {
-        RaycastHit2D[] leftColsTop = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0, 0.5f, 0),
+        RaycastHit2D[] leftColsTop = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0, hitBox.bounds.size.y / 2, 0),
                                                         Vector2.left, 0.6f, LayerMask.GetMask("Block"));
-        RaycastHit2D[] leftColsBottom = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0, 0.5f, 0),
+        RaycastHit2D[] leftColsBottom = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0, hitBox.bounds.size.y / 2, 0),
                                                         Vector2.left, 0.6f, LayerMask.GetMask("Block"));
-        RaycastHit2D[] rightColsTop = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0, 0.5f, 0),
+        RaycastHit2D[] rightColsTop = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0, hitBox.bounds.size.y / 2, 0),
                                                         Vector2.right, 0.6f, LayerMask.GetMask("Block"));
-        RaycastHit2D[] rightColsBottom = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0, 0.5f, 0),
+        RaycastHit2D[] rightColsBottom = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0, hitBox.bounds.size.y / 2, 0),
                                                         Vector2.right, 0.6f, LayerMask.GetMask("Block"));
         leftHanging = leftColsTop.Length > 0 && !facingRight || leftColsBottom.Length > 0 && !facingRight;
         rightHanging = rightColsTop.Length > 0 && facingRight || rightColsBottom.Length > 0 && facingRight;
@@ -295,7 +295,7 @@ public class Movement : MonoBehaviour
         {
             body.position = resPos;
         }
-        Collider2D[] overlaps2 = Physics2D.OverlapAreaAll(hitBox.bounds.min, hitBox.bounds.max, hazardMask);
+        Collider2D[] overlaps2 = Physics2D.OverlapAreaAll(hurtBox.bounds.min, hurtBox.bounds.max, hazardMask);
         if (overlaps2.Length > 0)
         {
             body.position = resPos;
