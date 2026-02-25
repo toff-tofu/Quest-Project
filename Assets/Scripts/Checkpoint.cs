@@ -6,7 +6,7 @@ using UnityEngine;
 public class Checkpoint : MonoBehaviour
 {
     // Start is called before the first frame update
-    [SerializeField] private GameObject player;
+    public GameObject player;
     [SerializeField] private BoxCollider2D zone;
     private UnityEngine.Vector2 _playerRes;
     void Start()
