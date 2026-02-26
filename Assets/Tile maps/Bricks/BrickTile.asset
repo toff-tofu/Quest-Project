@@ -270,7 +270,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 2
+    m_RandomTransform: 0
     m_Neighbors: 010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 3
+    m_RandomTransform: 0
     m_Neighbors: 010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 1, y: 0, z: 0}
@@ -324,7 +324,7 @@ MonoBehaviour:
     m_PerlinScale: 0.65
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 3
+    m_RandomTransform: 0
     m_Neighbors: 010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 1, y: 0, z: 0}
@@ -351,7 +351,7 @@ MonoBehaviour:
     m_PerlinScale: 0.412
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 2
+    m_RandomTransform: 0
     m_Neighbors: 010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 0, y: -1, z: 0}
@@ -380,7 +380,7 @@ MonoBehaviour:
     m_PerlinScale: 0.625
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 2
+    m_RandomTransform: 0
     m_Neighbors: 0100000001000000010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 0, y: -1, z: 0}
@@ -411,7 +411,7 @@ MonoBehaviour:
     m_PerlinScale: 0.499
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 2
+    m_RandomTransform: 0
     m_Neighbors: 0100000001000000020000000100000001000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
@@ -442,7 +442,7 @@ MonoBehaviour:
     m_PerlinScale: 0.29
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 3
+    m_RandomTransform: 0
     m_Neighbors: 0100000001000000010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 1, y: 0, z: 0}
@@ -473,7 +473,7 @@ MonoBehaviour:
     m_PerlinScale: 0.75
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 3
+    m_RandomTransform: 0
     m_Neighbors: 0100000001000000010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: -1, y: 0, z: 0}
@@ -504,7 +504,7 @@ MonoBehaviour:
     m_PerlinScale: 0.695
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 5
+    m_RandomTransform: 0
     m_Neighbors: 010000000100000001000000010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
@@ -536,7 +536,7 @@ MonoBehaviour:
     m_PerlinScale: 0.446
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 5
+    m_RandomTransform: 0
     m_Neighbors: 010000000100000001000000010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
@@ -568,7 +568,7 @@ MonoBehaviour:
     m_PerlinScale: 0.37
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 5
+    m_RandomTransform: 0
     m_Neighbors: 010000000100000001000000010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 1, y: 0, z: 0}
@@ -600,7 +600,7 @@ MonoBehaviour:
     m_PerlinScale: 0.607
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 5
+    m_RandomTransform: 0
     m_Neighbors: 010000000100000001000000010000000100000002000000010000000100000001000000010000000100000001000000
     m_NeighborPositions:
     - {x: 1, y: 0, z: 0}
@@ -625,7 +625,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 5
+    m_RandomTransform: 0
     m_Neighbors: 02000000020000000200000002000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
@@ -642,7 +642,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 3
+    m_RandomTransform: 0
     m_Neighbors: 02000000020000000200000001000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
@@ -659,7 +659,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 3
+    m_RandomTransform: 0
     m_Neighbors: 01000000020000000200000002000000
     m_NeighborPositions:
     - {x: -1, y: 0, z: 0}
@@ -677,7 +677,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 4
+    m_RandomTransform: 0
     m_Neighbors: 02000000020000000100000001000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
@@ -695,7 +695,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 4
+    m_RandomTransform: 0
     m_Neighbors: 01000000010000000200000002000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
@@ -712,7 +712,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 2
+    m_RandomTransform: 0
     m_Neighbors: 01000000020000000200000002000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
@@ -729,7 +729,7 @@ MonoBehaviour:
     m_PerlinScale: 0.5
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 2
+    m_RandomTransform: 0
     m_Neighbors: 01000000020000000200000002000000
     m_NeighborPositions:
     - {x: 0, y: -1, z: 0}
