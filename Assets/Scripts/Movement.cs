@@ -413,7 +413,7 @@ public class Movement : MonoBehaviour
     public void beginDash()
     {
         dashCoroutine = StartCoroutine(Dash());
-        GetComponent<TrailRenderer>().emitting = true;
+        // GetComponent<TrailRenderer>().emitting = true;
         dashing = true;
     }
     private IEnumerator Dash()
@@ -432,14 +432,14 @@ public class Movement : MonoBehaviour
             {
                 elapsedTime = dashDuration;
                 body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
-                GetComponent<TrailRenderer>().emitting = false;
+                // GetComponent<TrailRenderer>().emitting = false;
                 dashing = false;
                 yield break;
             }
             if (dashDuration - elapsedTime < 0.05f)
             {
                 body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
-                GetComponent<TrailRenderer>().emitting = false;
+                // GetComponent<TrailRenderer>().emitting = false;
                 dashing = false;
             }
         }
