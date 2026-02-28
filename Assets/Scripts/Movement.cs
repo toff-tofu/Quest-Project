@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using Unity.VisualScripting;
 using UnityEditor.ShortcutManagement;
 using UnityEngine;
@@ -20,7 +21,8 @@ public class Movement : MonoBehaviour
     public float terminalVel;
     public Collider2D hitBox;
     public Collider2D hurtBox;
-    public LayerMask groundMask;
+    public LayerMask movingBlockMask;
+    public LayerMask blockMask;
     public LayerMask buttonMask;
     public LayerMask hazardMask;
     public bool facingRight = true;
@@ -61,6 +63,7 @@ public class Movement : MonoBehaviour
     private Coroutine dashCoroutine;
     public bool usingCircle = false;
     public bool dashing = false;
+    private CinemachineImpulseSource impulseSource;
 
     //-------------------------------------------------------------------
 
@@ -71,6 +74,7 @@ public class Movement : MonoBehaviour
         _CameraFollowObject = cameraFollow.GetComponent<CameraFollowObject>();
         _fallSpeedYDampingChangeThreshold = CameraManager.instance.FallSpeedYDampingThreshold;
         animator = GetComponentInChildren<Animator>();
+        impulseSource = GetComponent<CinemachineImpulseSource>();
     }
     void Update()
     {
@@ -95,6 +99,7 @@ public class Movement : MonoBehaviour
         pPos = gameObject.GetComponent<Transform>().position;
         Move();
         ApplyForces();
+        CornerCorrect();
         CapSpeed();
         Die();
         if (Math.Abs(body.velocity.x) > 0.1f)
@@ -139,16 +144,16 @@ public class Movement : MonoBehaviour
     }
     private void CheckGrounded()
     {
-        RaycastHit2D[] leftCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(hitBox.bounds.size.x / 2, 0, 0),
+        RaycastHit2D[] leftCols = Physics2D.RaycastAll(hitBox.bounds.center - new Vector3(hitBox.bounds.size.x / 2, 0, 0),
                                                         Vector2.down, 0.6f, LayerMask.GetMask("Block"));
-        RaycastHit2D[] rightCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(hitBox.bounds.size.x / 2, 0, 0),
+        RaycastHit2D[] rightCols = Physics2D.RaycastAll(hitBox.bounds.center + new Vector3(hitBox.bounds.size.x / 2, 0, 0),
                                                         Vector2.down, 0.6f, LayerMask.GetMask("Block"));
         grounded = leftCols.Length > 0 || rightCols.Length > 0;
         if (grounded)
         {
             canDash = true;
         }
-        Collider2D[] overlaps = Physics2D.OverlapAreaAll(hitBox.bounds.min, hitBox.bounds.max, groundMask);
+        Collider2D[] overlaps = Physics2D.OverlapAreaAll(hitBox.bounds.min, hitBox.bounds.max, movingBlockMask);
         if (overlaps.Length == 0)
         {
             onMovingBlock = null;
@@ -179,17 +184,17 @@ public class Movement : MonoBehaviour
     }
     private void CheckHanging()
     {
-        RaycastHit2D[] leftColsTop = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0, hitBox.bounds.size.y / 2, 0),
-                                                        Vector2.left, 0.6f, LayerMask.GetMask("Block"));
-        RaycastHit2D[] leftColsBottom = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0, hitBox.bounds.size.y / 2, 0),
-                                                        Vector2.left, 0.6f, LayerMask.GetMask("Block"));
-        RaycastHit2D[] rightColsTop = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0, hitBox.bounds.size.y / 2, 0),
-                                                        Vector2.right, 0.6f, LayerMask.GetMask("Block"));
-        RaycastHit2D[] rightColsBottom = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0, hitBox.bounds.size.y / 2, 0),
-                                                        Vector2.right, 0.6f, LayerMask.GetMask("Block"));
+        RaycastHit2D[] leftColsTop = Physics2D.RaycastAll(hitBox.bounds.center + new Vector3(0, hitBox.bounds.size.y / 2, 0),
+                                                        Vector2.left, 0.55f, LayerMask.GetMask("Block"));
+        RaycastHit2D[] leftColsBottom = Physics2D.RaycastAll(hitBox.bounds.center - new Vector3(0, hitBox.bounds.size.y / 2, 0),
+                                                        Vector2.left, 0.55f, LayerMask.GetMask("Block"));
+        RaycastHit2D[] rightColsTop = Physics2D.RaycastAll(hitBox.bounds.center + new Vector3(0, hitBox.bounds.size.y / 2, 0),
+                                                        Vector2.right, 0.55f, LayerMask.GetMask("Block"));
+        RaycastHit2D[] rightColsBottom = Physics2D.RaycastAll(hitBox.bounds.center - new Vector3(0, hitBox.bounds.size.y / 2, 0),
+                                                        Vector2.right, 0.55f, LayerMask.GetMask("Block"));
         leftHanging = leftColsTop.Length > 0 && !facingRight || leftColsBottom.Length > 0 && !facingRight;
         rightHanging = rightColsTop.Length > 0 && facingRight || rightColsBottom.Length > 0 && facingRight;
-        if (leftColsTop.Length > 0 || rightColsTop.Length > 0 && rightColsBottom.Length <= 0 && leftColsBottom.Length <= 0)
+        if (leftColsTop.Length > 0 && rightColsBottom.Length <= 0 && leftColsBottom.Length <= 0 || rightColsTop.Length > 0 && rightColsBottom.Length <= 0 && leftColsBottom.Length <= 0)
         {
             animator.SetBool("Wall Hanging", true);
         }
@@ -214,6 +219,7 @@ public class Movement : MonoBehaviour
             coyoteTimeCounter = coyoteTime;
             animator.SetBool("Falling", false);
             animator.SetBool("Falling Forward", false);
+            animator.SetBool("Rising", false);
         }
         else
         {
@@ -222,6 +228,8 @@ public class Movement : MonoBehaviour
             if (body.velocity.y > 0)
             {
                 animator.SetBool("Rising", true);
+                animator.SetBool("Falling Forward", false);
+                animator.SetBool("Falling", false);
             }
             else
             {
@@ -336,19 +344,31 @@ public class Movement : MonoBehaviour
         {
             hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
             animator.SetTrigger("Wall Jump Not Turned");
+            // animator.SetBool("Wall Jump Away", true);
+            // animator.SetBool("Wall Jump Towards", false);
         }
         else if (Input.GetAxisRaw("Horizontal") * MoveSpeed < walljumpXVel && !facingRight)
         {
             hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
             animator.SetTrigger("Wall Jump Not Turned");
+            // animator.SetBool("Wall Jump Away", true);
+            // animator.SetBool("Wall Jump Towards", false);
         }//Trigger animation if holding back to the wall
         else if (Input.GetAxisRaw("Horizontal") * MoveSpeed < walljumpXVel && facingRight && walljumpXVel != 0)
         {
             animator.SetTrigger("Wall Jump Turned");
+            // animator.SetBool("Wall Jump Away", false);
+            // animator.SetBool("Wall Jump Towards", true);
         }
         else if (Input.GetAxisRaw("Horizontal") * MoveSpeed > walljumpXVel && !facingRight && walljumpXVel != 0)
         {
             animator.SetTrigger("Wall Jump Turned");
+            // animator.SetBool("Wall Jump Away", false);
+            // animator.SetBool("Wall Jump Towards", true);
+        }
+        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed == 0 && walljumpXVel != 0)
+        {
+            animator.SetTrigger("Wall Jump Neutral");
         }
         oldYVel = body.velocity.y;
         oldVel = body.velocity;
@@ -395,6 +415,7 @@ public class Movement : MonoBehaviour
         body.AddForce(abilitySpeed);
         body.AddForce(new Vector2(carrySpeed, 0));
         carrySpeed /= 1.08f;
+        oldVel = body.velocity;
     }
     void TouchButton()
     {
@@ -422,6 +443,7 @@ public class Movement : MonoBehaviour
         float startX = transform.position.x;
         float elapsedTime = 0f;
         float y = transform.position.y;
+        impulseSource.GenerateImpulse();
         while (elapsedTime < dashDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -431,7 +453,7 @@ public class Movement : MonoBehaviour
             if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.UpArrow) && (leftHanging || rightHanging))
             {
                 elapsedTime = dashDuration;
-                body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+                // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
                 // GetComponent<TrailRenderer>().emitting = false;
                 dashing = false;
                 yield break;
@@ -485,5 +507,27 @@ public class Movement : MonoBehaviour
     float RoundEigth(float num)
     {
         return Mathf.Round(num * 8f) / 8f;
+    }
+    void CornerCorrect()
+    {
+        float length = 0.125f;
+        float rayLength = Mathf.Abs(body.velocity.y * Time.fixedDeltaTime) + 0.02f;
+        if (body.velocity.y > 0)
+        {
+            if (!Physics2D.Raycast(new Vector2(hitBox.bounds.min.x, hitBox.bounds.max.y) + Vector2.right * length, Vector2.up, rayLength, blockMask) && Physics2D.Raycast(new Vector3(hitBox.bounds.min.x, hitBox.bounds.max.y), Vector2.up, rayLength, blockMask))
+            {
+                // body.MovePosition(new Vector2(body.position.x, body.position.y + oldVel.y) + Vector2.right * 0.125f);
+                body.MovePosition(body.position + Vector2.right * length);
+                return;
+            }
+            if (!Physics2D.Raycast(new Vector2(hitBox.bounds.max.x, hitBox.bounds.max.y) + Vector2.left * length, Vector2.up, rayLength, blockMask) && Physics2D.Raycast(new Vector3(hitBox.bounds.max.x, hitBox.bounds.max.y), Vector2.up, rayLength, blockMask))
+            {
+                body.MovePosition(body.position + Vector2.left * length);
+                // body.MovePosition(new Vector2(body.position.x, body.position.y + oldVel.y) + Vector2.left * 0.125f);
+                return;
+            }
+        }
+        Debug.DrawRay(new Vector2(hitBox.bounds.min.x, hitBox.bounds.max.y), Vector2.up * rayLength, Color.red);
+        Debug.DrawRay(new Vector2(hitBox.bounds.max.x, hitBox.bounds.max.y), Vector2.up * rayLength, Color.blue);
     }
 }
