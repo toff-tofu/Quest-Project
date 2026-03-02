@@ -46,4 +46,17 @@ public class Move : MonoBehaviour
 
         }
     }
+    void OnEnable()
+    {
+        GameEvents.OnPlayerDeath += ResetObject;
+    }
+
+    void OnDisable()
+    {
+        GameEvents.OnPlayerDeath -= ResetObject;
+    }
+    void ResetObject()
+    {
+        transform.position = node2.GetComponent<Transform>().position;
+    }
 }

@@ -51,6 +51,7 @@ public class Movement : MonoBehaviour
     private float jumpBufferTime = 0.2f;
     private float jumpBufferCounter = 0;
     private bool canTurn = false;
+    private float deathDuration = 0.84f;
     // private bool falling = false;
     // private bool jumpRise = false;
     public Vector2 pPos = new Vector3();
@@ -64,6 +65,11 @@ public class Movement : MonoBehaviour
     public bool usingCircle = false;
     public bool dashing = false;
     private CinemachineImpulseSource impulseSource;
+    private Coroutine deathCoroutine;
+    private bool invulnerable = false;
+    private bool canMove = false;
+    private float dashCooldown = 0.2f;
+    private float dashCooldownTime = 0.2f;
 
     //-------------------------------------------------------------------
 
@@ -75,15 +81,18 @@ public class Movement : MonoBehaviour
         _fallSpeedYDampingChangeThreshold = CameraManager.instance.FallSpeedYDampingThreshold;
         animator = GetComponentInChildren<Animator>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
+        canMove = true;
     }
     void Update()
     {
-
-        CheckGrounded();
-        TouchButton();
-        CheckHanging();
-        Jump();
-        Ability();
+        if (!invulnerable)
+        {
+            CheckGrounded();
+            TouchButton();
+            CheckHanging();
+            Jump();
+            Ability();
+        }
         if (body.velocity.y < _fallSpeedYDampingChangeThreshold && !CameraManager.instance.isLerpingY && !CameraManager.instance.lerpedFromPlayerFalling)
         {
             CameraManager.instance.LerpYDamping(true);
@@ -97,16 +106,32 @@ public class Movement : MonoBehaviour
     void FixedUpdate()
     {
         pPos = gameObject.GetComponent<Transform>().position;
-        Move();
+        if (canMove)
+        {
+            Move();
+        }
         ApplyForces();
         CornerCorrect();
         CapSpeed();
-        Die();
+        if (gameObject.GetComponent<Transform>().position.y < -30 && !invulnerable)
+        {
+            Die();
+        }
+        Collider2D[] overlaps2 = Physics2D.OverlapAreaAll(hurtBox.bounds.min, hurtBox.bounds.max, hazardMask);
+        if (overlaps2.Length > 0 && !invulnerable)
+        {
+            Die();
+        }
         if (Math.Abs(body.velocity.x) > 0.1f)
         {
             TurnCheck();
         }
         SetAnimators();
+        dashCooldown -= Time.deltaTime;
+        if (dashCooldown <= 0)
+        {
+            dashCooldown = 0f;
+        }
         // body.position = new Vector2(RoundEigth(body.position.x), RoundEigth(body.position.y));
     }
     void TurnCheck()
@@ -299,19 +324,17 @@ public class Movement : MonoBehaviour
     }
     void Die()
     {
-        if (gameObject.GetComponent<Transform>().position.y < -30)
-        {
-            body.position = resPos;
-        }
-        Collider2D[] overlaps2 = Physics2D.OverlapAreaAll(hurtBox.bounds.min, hurtBox.bounds.max, hazardMask);
-        if (overlaps2.Length > 0)
-        {
-            body.position = resPos;
-        }
+        invulnerable = true;
+        GameEvents.PlayerDied();
+        StopAllCoroutines();
+        animator.SetTrigger("Die");
+        deathCoroutine = StartCoroutine(Death());
+        impulseSource.GenerateImpulse();
+        dashing = false;
     }
     void Ability()
     {
-        if (Input.GetKeyDown("x") && canDash && abilitySpeed.x == 0)
+        if (Input.GetKeyDown("x") && canDash && abilitySpeed.x == 0 && dashCooldown <= 0f)
         {
             beginDash();
             canDash = false;
@@ -444,6 +467,7 @@ public class Movement : MonoBehaviour
         float elapsedTime = 0f;
         float y = transform.position.y;
         impulseSource.GenerateImpulse();
+        dashCooldown = dashCooldownTime;
         while (elapsedTime < dashDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -465,6 +489,30 @@ public class Movement : MonoBehaviour
                 dashing = false;
             }
         }
+        dashCooldown = dashCooldownTime;
+    }
+    private IEnumerator Death()
+    {
+        float elapsedTime = 0f;
+        float startX = transform.position.x;
+        float startY = transform.position.y;
+        invulnerable = true;
+        canMove = false;
+        hitBox.enabled = false;
+        hurtBox.enabled = false;
+        while (elapsedTime < deathDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float x = Mathf.Lerp(startX, resPos.x, elapsedTime / deathDuration);
+            float y = Mathf.Lerp(startY, resPos.y, elapsedTime / deathDuration);
+            body.MovePosition(new Vector2(x, y));
+            yield return null;
+        }
+        invulnerable = false;
+        canMove = true;
+        hitBox.enabled = true;
+        hurtBox.enabled = true;
+        body.velocity = new Vector2(0, 0);
     }
     private float DetermineDashDirection()
     {
