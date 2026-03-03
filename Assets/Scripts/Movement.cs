@@ -113,6 +113,7 @@ public class Movement : MonoBehaviour
         ApplyForces();
         CornerCorrect();
         CapSpeed();
+
         if (gameObject.GetComponent<Transform>().position.y < -30 && !invulnerable)
         {
             Die();
@@ -173,32 +174,47 @@ public class Movement : MonoBehaviour
                                                         Vector2.down, 0.6f, LayerMask.GetMask("Block"));
         RaycastHit2D[] rightCols = Physics2D.RaycastAll(hitBox.bounds.center + new Vector3(hitBox.bounds.size.x / 2, 0, 0),
                                                         Vector2.down, 0.6f, LayerMask.GetMask("Block"));
-        grounded = leftCols.Length > 0 || rightCols.Length > 0;
+        // grounded = leftCols.Length > 0 || rightCols.Length > 0;
+        if (transform.parent != null)
+        {
+            grounded = true;
+
+            // onMovingBlock =transform.parent.get
+        }
+        else if (leftCols.Length > 0 || rightCols.Length > 0)
+        {
+            grounded = true;
+            // onMovingBlock = null;
+        }
+        else
+        {
+            grounded = false;
+        }
         if (grounded)
         {
             canDash = true;
         }
-        Collider2D[] overlaps = Physics2D.OverlapAreaAll(hitBox.bounds.min, hitBox.bounds.max, movingBlockMask);
-        if (overlaps.Length == 0)
-        {
-            onMovingBlock = null;
-        }
-        else
-        {
-            foreach (Collider2D col in overlaps)
-            {
-                if (col.gameObject.layer == 11) // Layer 11 is "Moving Block"
-                {
-                    grounded = true;
-                    onMovingBlock = col.gameObject;
-                    break;
-                }
-                else
-                {
-                    onMovingBlock = null;
-                }
-            }
-        }
+        // Collider2D[] overlaps = Physics2D.OverlapAreaAll(hitBox.bounds.min, hitBox.bounds.max, movingBlockMask);
+        // if (overlaps.Length == 0)
+        // {
+        //     onMovingBlock = null;
+        // }
+        // else
+        // {
+        //     foreach (Collider2D col in overlaps)
+        //     {
+        //         if (col.gameObject.layer == 11) // Layer 11 is "Moving Block"
+        //         {
+        //             grounded = true;
+        //             onMovingBlock = col.gameObject;
+        //             break;
+        //         }
+        //         else
+        //         {
+        //             onMovingBlock = null;
+        //         }
+        //     }
+        // }
         // RaycastHit2D[] mLeftCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position - new Vector3(0.4f, 0, 0),
         //                                                 Vector2.down, 0.8f, LayerMask.GetMask("Moving Block"));
         // RaycastHit2D[] mRightCols = Physics2D.RaycastAll(gameObject.GetComponent<Transform>().position + new Vector3(0.4f, 0, 0),
@@ -284,7 +300,7 @@ public class Movement : MonoBehaviour
         if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
         {
             animator.SetTrigger("Jumped");
-            body.velocity = new Vector2(body.velocity.x, JumpHeight);
+            body.velocity = new Vector2(body.velocity.x * 1.05f, JumpHeight);
             if (Math.Abs(abilitySpeed.x) > abilityControl)
             {
                 carrySpeed = abilitySpeed.x / 2;
@@ -421,20 +437,19 @@ public class Movement : MonoBehaviour
         {
             body.velocity = new Vector2(body.velocity.x, -terminalVel);
         }
-        if (onMovingBlock != null)
-        {
-            blockVel = onMovingBlock.GetComponent<Rigidbody2D>().velocity;
-            grounded = true;
-            canDash = true;
-            print(blockVel);
-        }
-        else
-        {
-            blockVel = new Vector2(0, 0);
-        }
+        // if (onMovingBlock != null)
+        // {
+        //     // blockVel = onMovingBlock.GetComponent<Rigidbody2D>().velocity;
+        //     grounded = true;
+        //     canDash = true;
+        // }
+        // else
+        // {
+        //     // blockVel = new Vector2(0, 0);
+        // }
 
         body.AddForce(new Vector2((hVal + walljumpXVel) * acceleration, body.velocity.y));
-        body.velocity += blockVel / 2;
+        // body.velocity += blockVel / 2;
         body.AddForce(abilitySpeed);
         body.AddForce(new Vector2(carrySpeed, 0));
         carrySpeed /= 1.08f;
@@ -465,9 +480,10 @@ public class Movement : MonoBehaviour
         float dashDirection = DetermineDashDirection();
         float startX = transform.position.x;
         float elapsedTime = 0f;
-        float y = transform.position.y;
+        float y = transform.position.y + 0.125f;
         impulseSource.GenerateImpulse();
         dashCooldown = dashCooldownTime;
+
         while (elapsedTime < dashDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -482,13 +498,22 @@ public class Movement : MonoBehaviour
                 dashing = false;
                 yield break;
             }
-            if (dashDuration - elapsedTime < 0.05f)
-            {
-                body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
-                // GetComponent<TrailRenderer>().emitting = false;
-                dashing = false;
-            }
+            // if (dashDuration - elapsedTime < 0.05f)
+            // {
+
+            // }
         }
+        if (grounded)
+        {
+            body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+        }
+        else
+        {
+            body.velocity = new Vector2(facingRight ? 5 * abilityPower : 5 * -abilityPower, 0);
+        }
+
+        // GetComponent<TrailRenderer>().emitting = false;
+        dashing = false;
         dashCooldown = dashCooldownTime;
     }
     private IEnumerator Death()
@@ -578,4 +603,6 @@ public class Movement : MonoBehaviour
         Debug.DrawRay(new Vector2(hitBox.bounds.min.x, hitBox.bounds.max.y), Vector2.up * rayLength, Color.red);
         Debug.DrawRay(new Vector2(hitBox.bounds.max.x, hitBox.bounds.max.y), Vector2.up * rayLength, Color.blue);
     }
+
+
 }
