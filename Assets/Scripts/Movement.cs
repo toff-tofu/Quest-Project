@@ -481,6 +481,7 @@ public class Movement : MonoBehaviour
         float startX = transform.position.x;
         float elapsedTime = 0f;
         float y = transform.position.y + 0.125f;
+        bool shouldBeGrounded = grounded;
         impulseSource.GenerateImpulse();
         dashCooldown = dashCooldownTime;
 
@@ -498,18 +499,27 @@ public class Movement : MonoBehaviour
                 dashing = false;
                 yield break;
             }
+            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                elapsedTime = dashDuration;
+                body.velocity = new Vector2(facingRight ? 20 * abilityPower : 20 * -abilityPower, 5);
+                // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+                // GetComponent<TrailRenderer>().emitting = false;
+                dashing = false;
+                yield break;
+            }
             // if (dashDuration - elapsedTime < 0.05f)
             // {
 
             // }
         }
-        if (grounded)
+        if (shouldBeGrounded)
         {
             body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
         }
         else
         {
-            body.velocity = new Vector2(facingRight ? 5 * abilityPower : 5 * -abilityPower, 0);
+            body.velocity = new Vector2(facingRight ? 10 * abilityPower : 10 * -abilityPower, 0);
         }
 
         // GetComponent<TrailRenderer>().emitting = false;
