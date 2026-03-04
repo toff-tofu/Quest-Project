@@ -484,7 +484,7 @@ public class Movement : MonoBehaviour
         bool shouldBeGrounded = grounded;
         impulseSource.GenerateImpulse();
         dashCooldown = dashCooldownTime;
-
+        gameObject.transform.parent = null;
         while (elapsedTime < dashDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -502,7 +502,34 @@ public class Movement : MonoBehaviour
             if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.UpArrow))
             {
                 elapsedTime = dashDuration;
-                body.velocity = new Vector2(facingRight ? 20 * abilityPower : 20 * -abilityPower, 5);
+                body.velocity = new Vector2(facingRight ? 20 * abilityPower : 20 * -abilityPower, 8);
+                // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+                // GetComponent<TrailRenderer>().emitting = false;
+                dashing = false;
+                yield break;
+            }
+            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                elapsedTime = dashDuration;
+                body.velocity = new Vector2(facingRight ? 20 * abilityPower : 20 * -abilityPower, -8);
+                // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+                // GetComponent<TrailRenderer>().emitting = false;
+                dashing = false;
+                yield break;
+            }
+            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                elapsedTime = dashDuration;
+                body.velocity = new Vector2(50, 0);
+                // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+                // GetComponent<TrailRenderer>().emitting = false;
+                dashing = false;
+                yield break;
+            }
+            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                elapsedTime = dashDuration;
+                body.velocity = new Vector2(-50, 0);
                 // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
                 // GetComponent<TrailRenderer>().emitting = false;
                 dashing = false;
@@ -513,7 +540,7 @@ public class Movement : MonoBehaviour
 
             // }
         }
-        if (shouldBeGrounded)
+        if (shouldBeGrounded && dashing)
         {
             body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
         }
