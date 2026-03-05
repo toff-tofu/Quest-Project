@@ -41,7 +41,7 @@ public class Movement : MonoBehaviour
     public Vector2 resPos;
     private Vector2 abilitySpeed = new Vector2(0, 0);
     public bool canDash = false;
-    private GameObject onMovingBlock = null;
+    // private GameObject onMovingBlock = null;
     private Vector2 blockVel = new Vector2(0, 0);
     private float dashStartY;
     private float carrySpeed = 0;
@@ -555,21 +555,29 @@ public class Movement : MonoBehaviour
     }
     private IEnumerator Death()
     {
-        float elapsedTime = 0f;
-        float startX = transform.position.x;
-        float startY = transform.position.y;
+        // float elapsedTime = 0f;
+        // float startX = transform.position.x;
+        // float startY = transform.position.y;
         invulnerable = true;
         canMove = false;
         hitBox.enabled = false;
         hurtBox.enabled = false;
-        while (elapsedTime < deathDuration)
+        GetComponentInChildren<SpriteRenderer>().sortingOrder = 50;
+        StartCoroutine(GetComponent<TriggerGlobalAnimation>().Death());
+        // float x = Mathf.Lerp(startX, resPos.x, elapsedTime / deathDuration);
+        // float y = Mathf.Lerp(startY, resPos.y, elapsedTime / deathDuration);
+
+
+        for (int i = 0; i < 20; i++)
         {
-            elapsedTime += Time.deltaTime;
-            float x = Mathf.Lerp(startX, resPos.x, elapsedTime / deathDuration);
-            float y = Mathf.Lerp(startY, resPos.y, elapsedTime / deathDuration);
-            body.MovePosition(new Vector2(x, y));
+            Vector3 targetDirection = new Vector3(body.position.x - resPos.x, body.position.y - resPos.y, 0).normalized;
+            body.MovePosition(new Vector2(body.position.x - targetDirection.x, body.position.y - targetDirection.y));
             yield return null;
         }
+        yield return new WaitForSeconds(GetComponent<TriggerGlobalAnimation>().transitionTime);
+        body.MovePosition(resPos);
+        transform.position = new Vector3(resPos.x, resPos.y, 0);
+        GetComponentInChildren<SpriteRenderer>().sortingOrder = 50;
         invulnerable = false;
         canMove = true;
         hitBox.enabled = true;
