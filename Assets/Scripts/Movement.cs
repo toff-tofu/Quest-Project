@@ -562,18 +562,20 @@ public class Movement : MonoBehaviour
         canMove = false;
         hitBox.enabled = false;
         hurtBox.enabled = false;
+        body.gravityScale = 0;
         GetComponentInChildren<SpriteRenderer>().sortingOrder = 50;
         StartCoroutine(GetComponent<TriggerGlobalAnimation>().Death());
         // float x = Mathf.Lerp(startX, resPos.x, elapsedTime / deathDuration);
         // float y = Mathf.Lerp(startY, resPos.y, elapsedTime / deathDuration);
 
 
-        for (int i = 0; i < 20; i++)
-        {
-            Vector3 targetDirection = new Vector3(body.position.x - resPos.x, body.position.y - resPos.y, 0).normalized;
-            body.MovePosition(new Vector2(body.position.x - targetDirection.x, body.position.y - targetDirection.y));
-            yield return null;
-        }
+        for (int i = 0; i < 10; i++)
+{
+    Vector3 targetDirection = new Vector3((resPos.x - body.position.x), (resPos.y - body.position.y), 0).normalized;
+    body.velocity = new Vector2(targetDirection.x * 10, targetDirection.y * 10);
+    
+    yield return null;
+}
         yield return new WaitForSeconds(GetComponent<TriggerGlobalAnimation>().transitionTime);
         body.MovePosition(resPos);
         transform.position = new Vector3(resPos.x, resPos.y, 0);
@@ -583,6 +585,7 @@ public class Movement : MonoBehaviour
         hitBox.enabled = true;
         hurtBox.enabled = true;
         body.velocity = new Vector2(0, 0);
+        body.gravityScale = 3;
     }
     private float DetermineDashDirection()
     {
