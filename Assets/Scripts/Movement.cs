@@ -51,7 +51,7 @@ public class Movement : MonoBehaviour
     private float jumpBufferTime = 0.2f;
     private float jumpBufferCounter = 0;
     private bool canTurn = false;
-    private float deathDuration = 0.84f;
+    // private float deathDuration = 0.84f;
     // private bool falling = false;
     // private bool jumpRise = false;
     public Vector2 pPos = new Vector3();
@@ -374,19 +374,25 @@ public class Movement : MonoBehaviour
     void Move()
     {
         hVal = 0;
-        if (walljumpXVel < 3 && walljumpXVel >= 0 || walljumpXVel > -3 && walljumpXVel <= 0)
+        if (!canMove)
+        {
+            hVal = 0;
+            return; // skip the rest entirely
+        }
+
+        if (walljumpXVel < 3 && walljumpXVel >= 0 && canMove || walljumpXVel > -3 && walljumpXVel <= 0 && canMove)
         {
             canTurn = true;
             hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
         }//Continue if holding direction away from wall
-        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed > walljumpXVel && facingRight)
+        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed > walljumpXVel && facingRight && canMove)
         {
             hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
             animator.SetTrigger("Wall Jump Not Turned");
             // animator.SetBool("Wall Jump Away", true);
             // animator.SetBool("Wall Jump Towards", false);
         }
-        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed < walljumpXVel && !facingRight)
+        else if (Input.GetAxisRaw("Horizontal") * MoveSpeed < walljumpXVel && !facingRight && canMove)
         {
             hVal = Input.GetAxisRaw("Horizontal") * MoveSpeed;
             animator.SetTrigger("Wall Jump Not Turned");
@@ -413,6 +419,7 @@ public class Movement : MonoBehaviour
         oldVel = body.velocity;
         oldPos = gameObject.GetComponent<Transform>().position;
         walljumpXVel /= jumpSub;
+        Debug.Log(hVal);
     }
     void ApplyForces()
     {
@@ -570,13 +577,20 @@ public class Movement : MonoBehaviour
 
 
         for (int i = 0; i < 10; i++)
-{
-    Vector3 targetDirection = new Vector3((resPos.x - body.position.x), (resPos.y - body.position.y), 0).normalized;
-    body.velocity = new Vector2(targetDirection.x * 10, targetDirection.y * 10);
-    
-    yield return null;
-}
+        {
+            Vector3 targetDirection = (resPos - body.position).normalized;
+            body.velocity = new Vector2(targetDirection.x * 10, targetDirection.y * 10);
+
+            // Wait for the next physics update so velocity actually applies
+            yield return new WaitForFixedUpdate();
+        }
+
+        // Stop the player exactly at the respawn position
+        body.velocity = new Vector2(body.velocity.x / 5, body.velocity.y / 5);
+        hVal = 0;
+
         yield return new WaitForSeconds(GetComponent<TriggerGlobalAnimation>().transitionTime);
+        hVal = 0;
         body.MovePosition(resPos);
         transform.position = new Vector3(resPos.x, resPos.y, 0);
         GetComponentInChildren<SpriteRenderer>().sortingOrder = 50;

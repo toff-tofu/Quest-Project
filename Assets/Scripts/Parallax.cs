@@ -25,7 +25,7 @@ public class Parallax : MonoBehaviour
         float temp = (camObject.transform.position.x * (1 - parallaxAmount));
         float distanceX = camObject.position.x * parallaxAmount;
         float distanceY = camObject.position.y * parallaxAmount;
-        transform.position = new UnityEngine.Vector3(startPos.x + distanceX, startPos.y + distanceY, transform.position.z);
+        transform.position = new UnityEngine.Vector3(startPos.x + distanceX, camObject.position.y, transform.position.z);
         if (temp > startPos.x + length)
         {
             startPos.x += length;
