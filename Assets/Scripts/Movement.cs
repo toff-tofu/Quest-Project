@@ -19,7 +19,7 @@ public class Movement : MonoBehaviour
     public float abilityControl;
     public float xDrag;
     public float terminalVel;
-    public Collider2D hitBox;
+    public BoxCollider2D hitBox;
     public Collider2D hurtBox;
     public LayerMask movingBlockMask;
     public LayerMask blockMask;
@@ -82,6 +82,8 @@ public class Movement : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
         canMove = true;
+        hitBox.offset = new Vector2(0.125f, -0.1875f);
+        hitBox.size = new Vector2(0.75f, 0.625f);
     }
     void Update()
     {
@@ -492,6 +494,8 @@ public class Movement : MonoBehaviour
         impulseSource.GenerateImpulse();
         dashCooldown = dashCooldownTime;
         gameObject.transform.parent = null;
+        hitBox.offset = new Vector2(0.125f, -0.25f);
+        hitBox.size = new Vector2(0.75f, 0.5f);
         while (elapsedTime < dashDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -506,42 +510,43 @@ public class Movement : MonoBehaviour
                 dashing = false;
                 yield break;
             }
-            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                elapsedTime = dashDuration;
-                body.velocity = new Vector2(facingRight ? 20 * abilityPower : 20 * -abilityPower, 8);
-                // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
-                // GetComponent<TrailRenderer>().emitting = false;
-                dashing = false;
-                yield break;
-            }
-            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                elapsedTime = dashDuration;
-                body.velocity = new Vector2(facingRight ? 20 * abilityPower : 20 * -abilityPower, -8);
-                // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
-                // GetComponent<TrailRenderer>().emitting = false;
-                dashing = false;
-                yield break;
-            }
-            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                elapsedTime = dashDuration;
-                body.velocity = new Vector2(50, 0);
-                // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
-                // GetComponent<TrailRenderer>().emitting = false;
-                dashing = false;
-                yield break;
-            }
-            if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                elapsedTime = dashDuration;
-                body.velocity = new Vector2(-50, 0);
-                // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
-                // GetComponent<TrailRenderer>().emitting = false;
-                dashing = false;
-                yield break;
-            }
+            // }
+            // if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.UpArrow))
+            // {
+            //     elapsedTime = dashDuration;
+            //     body.velocity = new Vector2(facingRight ? 20 * abilityPower : 20 * -abilityPower, 8);
+            //     // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+            //     // GetComponent<TrailRenderer>().emitting = false;
+            //     dashing = false;
+            //     yield break;
+            // }
+            // if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.DownArrow))
+            // {
+            //     elapsedTime = dashDuration;
+            //     body.velocity = new Vector2(facingRight ? 20 * abilityPower : 20 * -abilityPower, -8);
+            //     // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+            //     // GetComponent<TrailRenderer>().emitting = false;
+            //     dashing = false;
+            //     yield break;
+            // }
+            // if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.RightArrow))
+            // {
+            //     elapsedTime = dashDuration;
+            //     body.velocity = new Vector2(50, 0);
+            //     // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+            //     // GetComponent<TrailRenderer>().emitting = false;
+            //     dashing = false;
+            //     yield break;
+            // }
+            // if (dashDuration - elapsedTime < 0.2f && Input.GetKeyDown(KeyCode.LeftArrow))
+            // {
+            //     elapsedTime = dashDuration;
+            //     body.velocity = new Vector2(-50, 0);
+            //     // body.velocity = new Vector2(facingRight ? abilityPower : -abilityPower, 0);
+            //     // GetComponent<TrailRenderer>().emitting = false;
+            //     dashing = false;
+            //     yield break;
+            // }
             // if (dashDuration - elapsedTime < 0.05f)
             // {
 
@@ -559,6 +564,9 @@ public class Movement : MonoBehaviour
         // GetComponent<TrailRenderer>().emitting = false;
         dashing = false;
         dashCooldown = dashCooldownTime;
+        //-0.1875
+        hitBox.offset = new Vector2(0.125f, -0.1875f);
+        hitBox.size = new Vector2(0.75f, 0.625f);
     }
     private IEnumerator Death()
     {
